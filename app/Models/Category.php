@@ -12,14 +12,16 @@ class Category extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'st_categories';
+
     protected $fillable = [
         'name',
         'slug',
         'icon',
     ];
-
-    public function shoes(): HasMany{
-        return $this->hasMany(Shoe::class);
+    
+    public function products(): HasMany{
+        return $this->hasMany(Product::class);
     }
 
     public function setNameAttribute($value){

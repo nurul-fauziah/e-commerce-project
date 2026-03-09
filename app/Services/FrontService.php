@@ -2,30 +2,30 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\CategoryRepositoryInterface;
-use App\Repositories\Contracts\ShoeRepositoryInterface;
+use App\Repositories\Contracts\ProductRepositoryInterface;
 
 class FrontService
 {
     protected $categoryRepository;
-    protected $shoeRepository;
+    protected $productRepository;
 
-    public function __construct(ShoeRepositoryInterface $shoeRepository, CategoryRepositoryInterface $categoryRepository)
+    public function __construct(ProductRepositoryInterface $productRepository, CategoryRepositoryInterface $categoryRepository)
     {
-        $this->shoeRepository = $shoeRepository;
+        $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
     }
 
-    public function searchShoes(string $keyword)
+    public function searchProducts(string $keyword)
     {
-        return $this->shoeRepository->searchByName($keyword);
+        return $this->productRepository->searchByName($keyword);
     }
 
     public function getFrontPageData()
     {
         $categories = $this->categoryRepository->getAllCategories();
-        $popularShoes = $this->shoeRepository->getPopularShoes(4);
-        $newShoes = $this->shoeRepository->getAllNewShoes();
+        $popularProducts = $this->productRepository->getPopularProducts(4);
+        $newProducts = $this->productRepository->getAllNewProducts();
 
-        return compact('categories', 'popularShoes', 'newShoes');
+        return compact('categories', 'popularProducts', 'newProducts');
     }
 }

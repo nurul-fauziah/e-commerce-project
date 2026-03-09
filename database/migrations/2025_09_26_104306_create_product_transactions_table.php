@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_transactions', function (Blueprint $table) {
+        Schema::create('st_product_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('phone');
@@ -19,17 +19,18 @@ return new class extends Migration
             $table->string('booking_trx_id');
             $table->string('city');
             $table->string('post_code');
-            $table->string('proof');
+            $table->string('proof'); // Bukti transfer
 
-            $table->unsignedBigInteger('shoe_size');
+            $table->string('variant_details')->nullable(); // Nyimpen varian yang dipilih (misal: "RAM 16GB, Blue")
             $table->text('address');
             $table->unsignedBigInteger('quantity');
             $table->unsignedBigInteger('sub_total_amount');
             $table->unsignedBigInteger('grand_total_amount');
             $table->unsignedBigInteger('discount_amount')->default(0);
-            $table->boolean('is_paid');
-            $table->foreignId('shoe_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('promo_code_id')->nullable()->constrained()->casacadeOnDelete();
+            $table->boolean('is_paid')->default(false);
+
+            $table->foreignId('st_product_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('st_promo_code_id')->nullable()->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -40,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_transactions');
+        Schema::dropIfExists('st_product_transactions');
     }
 };

@@ -12,6 +12,8 @@ class Brand extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'st_brands';
+
     protected $fillable = [
         'name',
         'slug',
@@ -23,7 +25,7 @@ class Brand extends Model
         $this->attributes['slug'] = Str::slug($value);
     }
 
-    public function shoes(): HasMany{
-        return $this->hasMany(Shoe::class);
+    public function products(): HasMany{
+        return $this->hasMany(Product::class);
     }
 }

@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shoe_photos', function (Blueprint $table) {
+        Schema::create('st_product_variants', function (Blueprint $table) {
             $table->id();
-            $table->string('photo');
-            $table->foreignId('shoe_id')->constrained('shoes')->cascadeOnDelete();
+            $table->string('variant_name'); // Misal: "RAM", "Warna", "Storage"
+            $table->string('variant_value'); // Misal: "16GB", "Midnight Black", "512GB SSD"
+            $table->foreignId('st_product_id')->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shoe_photos');
+        Schema::dropIfExists('st_product_variants');
     }
 };

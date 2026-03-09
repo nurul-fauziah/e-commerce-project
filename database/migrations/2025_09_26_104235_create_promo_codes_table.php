@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('promo_codes', function (Blueprint $table) {
+        Schema::create('st_promo_codes', function (Blueprint $table) {
             $table->id();
             $table->string('code');
             $table->unsignedBigInteger('discount_amount');
             $table->softDeletes();
             $table->timestamps();
         });
-    }
+            }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('promo_codes');
+        Schema::dropIfExists('st_promo_codes');
     }
 };

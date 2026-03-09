@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\Shoe;
+use App\Models\Product;
 use App\Repositories\CategoryRepository;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
-use App\Repositories\Contracts\ShoeRepositoryInterface;
+use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\OrderRepository;
 use App\Repositories\PromoCodeRepository;
-use App\Repositories\ShoeRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(CategoryRepositoryInterface::class, CategoryRepository::class);
 
-        $this->app->singleton(ShoeRepositoryInterface::class, ShoeRepository::class);
+        $this->app->singleton(ProductRepositoryInterface::class, ProductRepository::class);
 
         $this->app->singleton(OrderRepository::class, OrderRepository::class);
 

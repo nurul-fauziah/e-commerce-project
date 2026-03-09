@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="{{asset('output.css')}}" rel="stylesheet">
+        <link href="{{'output.css'}}" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     </head>
@@ -32,31 +32,50 @@
                     </a>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
-
-                    @forelse ($categories as $itemCategory)
-
-                    <a href="{{ route('front.category',$itemCategory->slug) }}">
+                    <a href="category.html">
                         <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
                             <div class="flex flex-col gap-[2px] px-[14px]">
-                                <h3 class="font-bold text-sm leading-[21px]">
-                                    {{ $itemCategory->name }}
-                                </h3>
-                                <p class="text-xs leading-[18px] text-[#878785]">{{ $itemCategory->shoes->count() }} Shoes</p>
+                                <h3 class="font-bold text-sm leading-[21px]">Lifestyle</h3>
+                                <p class="text-xs leading-[18px] text-[#878785]">223 Shoes</p>
                             </div>
                             <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
-                                <img src="{{ Storage::url($itemCategory->icon) }}" class="w-full h-full object-cover object-left" alt="thumbnail">
+                                <img src="assets/images/thumbnails/photo1.png" class="w-full h-full object-cover object-left" alt="thumbnail">
                             </div>
                         </div>
                     </a>
-
-                    @empty
-
-                    <p>Belum ada data terbaru..</p>
-
-                    @endforelse
-
-
-
+                    <a href="category.html">
+                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                            <div class="flex flex-col gap-[2px] px-[14px]">
+                                <h3 class="font-bold text-sm leading-[21px]">Running</h3>
+                                <p class="text-xs leading-[18px] text-[#878785]">12 Shoes</p>
+                            </div>
+                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
+                                <img src="assets/images/thumbnails/photo2.png" class="w-full h-full object-cover object-left" alt="thumbnail">
+                            </div>
+                        </div>
+                    </a>
+                    <a href="category.html">
+                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                            <div class="flex flex-col gap-[2px] px-[14px]">
+                                <h3 class="font-bold text-sm leading-[21px]">Gym</h3>
+                                <p class="text-xs leading-[18px] text-[#878785]">142 Shoes</p>
+                            </div>
+                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
+                                <img src="assets/images/thumbnails/photo3.png" class="w-full h-full object-cover object-left" alt="thumbnail">
+                            </div>
+                        </div>
+                    </a>
+                    <a href="category.html">
+                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                            <div class="flex flex-col gap-[2px] px-[14px]">
+                                <h3 class="font-bold text-sm leading-[21px]">Sandal</h3>
+                                <p class="text-xs leading-[18px] text-[#878785]">51 Shoes</p>
+                            </div>
+                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
+                                <img src="assets/images/thumbnails/photo4.png" class="w-full h-full object-cover object-left" alt="thumbnail">
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </section>
             <section id="featured" class="flex flex-col gap-4">
@@ -68,9 +87,6 @@
                 </div>
                 <div class="swiper w-full overflow-hidden">
                     <div class="swiper-wrapper">
-
-                        @forelse ($popularShoes as $itemPopularShoe)
-
                         <div class="swiper-slide !w-fit py-[2px]">
                             <a href="details.html">
                                 <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
@@ -93,14 +109,72 @@
                                 </div>
                             </a>
                         </div>
-
-                        @empty
-
-                        <p>Belum ada data terbaru...</p>
-
-                        @endforelse
-
-
+                        <div class="swiper-slide !w-fit py-[2px]">
+                            <a href="details.html">
+                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+                                        <img src="assets/images/thumbnails/image2.png" class="w-full h-full object-cover" alt="thumbnail">
+                                    </div>
+                                    <div class="flex flex-col gap-[14px] justify-between">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
+                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-1">
+                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
+                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
+                                            </div>
+                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="swiper-slide !w-fit py-[2px]">
+                            <a href="details.html">
+                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+                                        <img src="assets/images/thumbnails/image1.png" class="w-full h-full object-cover" alt="thumbnail">
+                                    </div>
+                                    <div class="flex flex-col gap-[14px] justify-between">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
+                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-1">
+                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
+                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
+                                            </div>
+                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="swiper-slide !w-fit py-[2px]">
+                            <a href="details.html">
+                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
+                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
+                                        <img src="assets/images/thumbnails/image2.png" class="w-full h-full object-cover" alt="thumbnail">
+                                    </div>
+                                    <div class="flex flex-col gap-[14px] justify-between">
+                                        <div class="flex items-center justify-between gap-4">
+                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
+                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-1">
+                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
+                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
+                                            </div>
+                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>

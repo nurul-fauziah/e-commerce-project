@@ -6,16 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\ShoePhotos;
-use App\Models\ShoeSize;
-
-class Shoe extends Model
+class Product extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $table = 'st_products';
 
     protected $fillable = [
         'name',
@@ -25,8 +23,8 @@ class Shoe extends Model
         'price',
         'stock',
         'is_popular',
-        'category_id',
-        'brand_id',
+        'st_category_id',
+        'st_brand_id',
     ];
 
     public function setNameAttribute($value){
@@ -35,20 +33,20 @@ class Shoe extends Model
     }
 
     public function brand(): BelongsTo{
-        return $this->belongsTo(Brand::class, 'brand_id');
+        return $this->belongsTo(Brand::class, 'st_brand_id');
     }
 
     public function category(): BelongsTo{
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'st_category_id');
     }
 
-    public function photos()
+    public function photos(): HasMany
     {
-        return $this->hasMany(ShoePhotos::class, 'shoe_id');
+        return $this->hasMany(ProductPhoto::class, 'st_product_id');
     }
 
-    public function sizes()
+    public function variants(): HasMany
     {
-        return $this->hasMany(ShoeSize::class, 'shoe_id');
+        return $this->hasMany(ProductVariant::class, 'st_product_id');
     }
 }

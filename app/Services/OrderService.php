@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\ProductTransaction;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\OrderRepositoryInterface;
-use App\Repositories\Contracts\ShoeRepositoryInterface;
+use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\PromoCodeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,18 +13,18 @@ use Illuminate\Support\Facades\Log;
 class OrderService
 {
     protected $orderRepository;
-    protected $shoeRepository;
+    protected $productRepository;
     protected $categoryRepository;
     protected $promoCodeRepository;
 
     public function __construct(
         OrderRepositoryInterface $orderRepository,
-        ShoeRepositoryInterface $shoeRepository,
+        ProductRepositoryInterface $productRepository,
         CategoryRepositoryInterface $categoryRepository,
         PromoCodeRepositoryInterface $promoCodeRepository
     ) {
         $this->orderRepository = $orderRepository;
-        $this->shoeRepository = $shoeRepository;
+        $this->productRepository = $productRepository;
         $this->categoryRepository = $categoryRepository;
         $this->promoCodeRepository = $promoCodeRepository;
     }
@@ -32,10 +32,10 @@ class OrderService
     public function beginOrder(array $data)
     {
         $orderData = [
-            'shoe_size' => $data['shoe-size'],
-            'shoe_id' => $data['shoe_id'],
-            'size_id' => $data['size_id'],
-
+            // Ganti istilah 'size' jadi 'variant' biar lebih cocok buat elektronik
+            'variant_details' => $data['variant_details'] ?? $data['product-size'], 
+            'product_id' => $data['product_id'],
+            'variant_id' => $data['variant_id'] ?? $data['size_id'],
         ];
 
         $this->orderRepository->saveToSession($orderData);
@@ -44,12 +44,12 @@ class OrderService
     public function getOrderDetails()
     {
         $orderData = $this->orderRepository->getOrderFromSession();
-        $shoe = $this->shoeRepository->find($orderData['shoe_id']);
+        $product = $this->productRepository->find($orderData['product_id']);
 
-        $quantity = isset($orderData['quantity']) ? $orderData['quantity'] : 1;
-        $subTotalAmount = $shoe->price * $quantity;
+        $quantity = $orderData['quantity'] ?? 1;
+        $subTotalAmount = $product->price * $quantity;
 
-        $taxRate = 0.11; // 11% tax
+        $taxRate = 0.11; // 11% PPN
         $totalTax = $subTotalAmount * $taxRate;
 
         $grandTotalAmount = $subTotalAmount + $totalTax;
@@ -58,23 +58,27 @@ class OrderService
         $orderData['total_tax'] = $totalTax;
         $orderData['grand_total_amount'] = $grandTotalAmount;
 
-        return compact('orderData', 'shoe');
+        return compact('orderData', 'product');
     }
 
     public function applyPromoCode(string $code, int $subTotalAmount)
     {
         $promo = $this->promoCodeRepository->findByCode($code);
 
-        if (!$promo) {
+        // REVISI: Cek jika promo ADA (bukan tidak ada)
+        if ($promo) {
             $discount = $promo->discount_amount;
             $grandTotalAmount = $subTotalAmount - $discount;
             $promoCodeId = $promo->id;
-            return ['discount' => $discount, 'grand_total_amount' => $grandTotalAmount,
-            'promoCodeId' => $promoCodeId];
+            
+            return [
+                'discount' => $discount, 
+                'grand_total_amount' => $grandTotalAmount,
+                'promoCodeId' => $promoCodeId
+            ];
         }
 
-        return ['error' => 'Kode promo tidak tersedia'];
-
+        return ['error' => 'Kode promo tidak valid atau sudah kadaluwarsa'];
     }
 
     public function saveBookingTransaction(array $data)
@@ -90,7 +94,6 @@ class OrderService
     public function paymentConfirm(array $validated)
     {
         $orderData = $this->orderRepository->getOrderFromSession();
-
         $productTransactionId = null;
 
         try {
@@ -111,19 +114,19 @@ class OrderService
                 $validated['grand_total_amount'] = $orderData['grand_total_amount'];
                 $validated['discount_amount'] = $orderData['discount_amount'] ?? 0;
                 $validated['promo_code_id'] = $orderData['promo_code_id'] ?? null;
-                $validated['shoe_id'] = $orderData['shoe_id'];
-                $validated['shoe_size'] = $orderData['shoe_size'];
+                $validated['product_id'] = $orderData['product_id'];
+                $validated['variant_details'] = $orderData['variant_details'] ?? null;
                 $validated['is_paid'] = false;
-                $validated['booking_trx_id'] = ProductTransaction::generateBookingTrxId();
+                
+                // REVISI: Sesuaikan nama method dengan yang ada di Model ProductTransaction
+                $validated['booking_trx_id'] = ProductTransaction::generateUniqueCode();
 
                 $newTransaction = $this->orderRepository->createTransaction($validated);
                 $productTransactionId = $newTransaction->id;
-
             });
 
         } catch (\Exception $e) {
             Log::error('Error in payment confirmation: ' . $e->getMessage());
-            session()->flash('error', $e->getMessage());
             return null;
         }
 
