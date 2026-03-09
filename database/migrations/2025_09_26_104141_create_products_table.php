@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shoes', function (Blueprint $table) {
-            $table->id();
 
+        Schema::create('st_products', function (Blueprint $table) {
+            $table->id();
             $table->string('name');
             $table->string('slug');
             $table->string('thumbnail');
-            $table->text('about');
+            $table->text('about'); // Deskripsi spek lengkap
             $table->unsignedBigInteger('price');
             $table->unsignedBigInteger('stock');
-            $table->boolean('is_popular');
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
-            $table->foreignId('brand_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->boolean('is_popular')->default(false);
+            $table->foreignId('st_category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('st_brand_id')->nullable()->constrained()->cascadeOnDelete();
             $table->softDeletes();
-            
             $table->timestamps();
         });
     }
@@ -34,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shoes');
+        Schema::dropIfExists('st_products');
     }
 };

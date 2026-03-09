@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ShoePhotos extends Model
+class ProductVariant extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'photo',
-        'shoe_id',
+        'variant_name', // Misal: RAM, Storage
+        'variant_value', // Misal: 16GB, 512GB
+        'st_product_id',
     ];
 }

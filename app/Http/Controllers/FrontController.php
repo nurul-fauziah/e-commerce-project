@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Shoe;
+use App\Models\Product;
 use App\Services\FrontService;
 use Illuminate\Http\Request;
 
@@ -22,9 +22,9 @@ class FrontController extends Controller
         return view('front.index', $data);
     }
 
-    public function details(Shoe $shoe)
+    public function details(Product $product)
     {
-        return view('front.details', compact('shoe'));
+        return view('front.details', compact('product'));
     }
 
     public function category(Category $category)

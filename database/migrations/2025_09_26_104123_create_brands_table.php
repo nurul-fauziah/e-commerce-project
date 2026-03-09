@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('brands', function (Blueprint $table) {
+        Schema::create('st_brands', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name'); // Misal: Apple, Samsung, ASUS
             $table->string('slug');
             $table->string('logo')->nullable();
             $table->softDeletes();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('brands');
+        Schema::dropIfExists('st_brands');
     }
 };

@@ -6,7 +6,7 @@ use App\Http\Requests\StoreCustomerDataRequest;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\StorePaymentRequest;
 use App\Models\ProductTransaction;
-use App\Models\Shoe;
+use App\Models\Product;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 
@@ -21,15 +21,15 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    public function saveOrder(StoreOrderRequest $request, Shoe $shoe)
+    public function saveOrder(StoreOrderRequest $request, Product $product)
     {
         $validated = $request->validated();
 
-        $validated['shoe_id'] = $shoe->id;
+        $validated['product_id'] = $product->id;
 
         $this->orderService->beginOrder($validated);
 
-        return redirect()->route('front.booking', $shoe->slug);
+        return redirect()->route('front.booking', $product->slug);
     }
 
     public function booking()
