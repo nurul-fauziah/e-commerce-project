@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('st_product_variants', function (Blueprint $table) {
             $table->id();
-            $table->string('variant_name'); // Misal: "RAM", "Warna", "Storage"
-            $table->string('variant_value'); // Misal: "16GB", "Midnight Black", "512GB SSD"
-            $table->foreignId('st_product_id')->constrained()->cascadeOnDelete();
+
+            // Foreign Key ke produk
+            $table->foreignId('st_product_id')->constrained('st_products')->onDelete('cascade');
+
+            $table->string('name');  // Contoh: 'RAM', 'Storage', 'Color'
+            $table->string('value'); // Contoh: '16GB', '512GB', 'Midnight Black'
             $table->softDeletes();
+
             $table->timestamps();
         });
+
     }
 
     /**

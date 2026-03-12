@@ -11,12 +11,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip'; // Icon Tech
+    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
+    protected static ?string $navigationGroup = 'Shop Management';
 
     public static function form(Form $form): Form
     {
@@ -30,7 +32,7 @@ class ProductResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                                 Forms\Components\TextInput::make('slug')
                                     ->disabled()
@@ -64,13 +66,15 @@ class ProductResource extends Resource
                 Section::make('Media & Categorization')
                     ->schema([
                         Grid::make(2)->schema([
-                            Forms\Components\Select::make('category_id')
+                            // Pake st_category_id sesuai fillable lo
+                            Forms\Components\Select::make('st_category_id')
                                 ->relationship('category', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
 
-                            Forms\Components\Select::make('brand_id')
+                            // Pake st_brand_id sesuai fillable lo
+                            Forms\Components\Select::make('st_brand_id')
                                 ->relationship('brand', 'name')
                                 ->searchable()
                                 ->preload()
@@ -78,6 +82,7 @@ class ProductResource extends Resource
                         ]),
                         Forms\Components\FileUpload::make('thumbnail')
                             ->image()
+                            ->imageEditor()
                             ->directory('products')
                             ->required(),
                     ]),
@@ -85,7 +90,7 @@ class ProductResource extends Resource
                 Section::make('Product Variants & Gallery')
                     ->schema([
                         Forms\Components\Repeater::make('variants')
-                            ->relationship('variants')
+                            ->relationship('variants') // Ini nyari ke Model ProductVariant
                             ->schema([
                                 Forms\Components\TextInput::make('variant_name')
                                     ->placeholder('e.g. RAM, Storage')
@@ -96,7 +101,7 @@ class ProductResource extends Resource
                             ])->columns(2),
 
                         Forms\Components\Repeater::make('photos')
-                            ->relationship('photos')
+                            ->relationship('photos') // Ini nyari ke Model ProductPhoto
                             ->schema([
                                 Forms\Components\FileUpload::make('photo')
                                     ->image()
@@ -110,29 +115,28 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('thumbnail')
-                    ->rounded(),
+                Tables\Columns\ImageColumn::make('thumbnail')->rounded(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->description(fn (Product $record): string => $record->brand->name),
-                Tables\Columns\TextColumn::make('category.name')
-                    ->badge(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->sortable(),
+                    ->weight('bold')
+                    ->description(fn (Product $record): string => "Brand: {$record->brand->name}"),
+                Tables\Columns\TextColumn::make('category.name')->badge()->color('info'),
+                Tables\Columns\TextColumn::make('price')->money('IDR')->sortable()->color('success')->weight('bold'),
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_popular')
-                    ->boolean()
-                    ->label('Popular'),
+                    ->sortable()
+                    ->color(fn ($state) => $state < 5 ? 'danger' : 'gray'),
+                Tables\Columns\IconColumn::make('is_popular')->boolean()->label('Popular'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category_id')
+                Tables\Filters\SelectFilter::make('st_category_id')
                     ->relationship('category', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ]);
     }
 

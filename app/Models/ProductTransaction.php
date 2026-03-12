@@ -11,11 +11,13 @@ class ProductTransaction extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'st_product_transactions';
+
     protected $fillable = [
         'name',
         'phone',
         'email',
-        'st_booking_trx_id',
+        'booking_trx_id',
         'city',
         'post_code',
         'address',
@@ -25,16 +27,17 @@ class ProductTransaction extends Model
         'discount_amount',
         'is_paid',
         'st_product_id',
-        'variant_details', // Nyimpen info varian yang dibeli
+        'variant_details',
         'st_promo_code_id',
         'proof',
+        'user_id',
     ];
 
     public static function generateUniqueCode(){
         $prefix = 'STRX-';
         do {
             $randomString = $prefix . mt_rand(1000, 9999);
-        } while (self::where('st_booking_trx_id', $randomString)->exists());
+        } while (self::where('booking_trx_id', $randomString)->exists());
 
         return $randomString;
     }
@@ -43,7 +46,8 @@ class ProductTransaction extends Model
         return $this->belongsTo(Product::class, 'st_product_id');
     }
 
-    public function promoCode(): BelongsTo{
+    public function promoCode(): BelongsTo
+    {
         return $this->belongsTo(PromoCode::class, 'st_promo_code_id');
     }
 }

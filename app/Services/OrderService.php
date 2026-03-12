@@ -3,39 +3,38 @@
 namespace App\Services;
 
 use App\Models\ProductTransaction;
-use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\OrderRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\PromoCodeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class OrderService
 {
     protected $orderRepository;
     protected $productRepository;
-    protected $categoryRepository;
     protected $promoCodeRepository;
 
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         ProductRepositoryInterface $productRepository,
-        CategoryRepositoryInterface $categoryRepository,
         PromoCodeRepositoryInterface $promoCodeRepository
     ) {
         $this->orderRepository = $orderRepository;
         $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
         $this->promoCodeRepository = $promoCodeRepository;
     }
 
     public function beginOrder(array $data)
     {
         $orderData = [
-            // Ganti istilah 'size' jadi 'variant' biar lebih cocok buat elektronik
-            'variant_details' => $data['variant_details'] ?? $data['product-size'], 
+            'variant_details' => $data['variant_details'] ?? null,
             'product_id' => $data['product_id'],
-            'variant_id' => $data['variant_id'] ?? $data['size_id'],
+            'variant_id' => $data['variant_id'] ?? null,
+            'quantity' => 1, // Default quantity
         ];
 
         $this->orderRepository->saveToSession($orderData);
@@ -44,46 +43,23 @@ class OrderService
     public function getOrderDetails()
     {
         $orderData = $this->orderRepository->getOrderFromSession();
-        $product = $this->productRepository->find($orderData['product_id']);
+        $product = null;
 
-        $quantity = $orderData['quantity'] ?? 1;
-        $subTotalAmount = $product->price * $quantity;
+        if (isset($orderData['product_id'])) {
+            $product = $this->productRepository->find($orderData['product_id']);
 
-        $taxRate = 0.11; // 11% PPN
-        $totalTax = $subTotalAmount * $taxRate;
+            $quantity = $orderData['quantity'] ?? 1;
+            $subTotalAmount = $product->price * $quantity;
+            $taxRate = 0.11;
+            $totalTax = $subTotalAmount * $taxRate;
+            $grandTotalAmount = $subTotalAmount + $totalTax;
 
-        $grandTotalAmount = $subTotalAmount + $totalTax;
-
-        $orderData['sub_total_amount'] = $subTotalAmount;
-        $orderData['total_tax'] = $totalTax;
-        $orderData['grand_total_amount'] = $grandTotalAmount;
-
-        return compact('orderData', 'product');
-    }
-
-    public function applyPromoCode(string $code, int $subTotalAmount)
-    {
-        $promo = $this->promoCodeRepository->findByCode($code);
-
-        // REVISI: Cek jika promo ADA (bukan tidak ada)
-        if ($promo) {
-            $discount = $promo->discount_amount;
-            $grandTotalAmount = $subTotalAmount - $discount;
-            $promoCodeId = $promo->id;
-            
-            return [
-                'discount' => $discount, 
-                'grand_total_amount' => $grandTotalAmount,
-                'promoCodeId' => $promoCodeId
-            ];
+            $orderData['sub_total_amount'] = $subTotalAmount;
+            $orderData['total_tax'] = $totalTax;
+            $orderData['grand_total_amount'] = $grandTotalAmount;
         }
 
-        return ['error' => 'Kode promo tidak valid atau sudah kadaluwarsa'];
-    }
-
-    public function saveBookingTransaction(array $data)
-    {
-        $this->orderRepository->saveToSession($data);
+        return compact('orderData', 'product');
     }
 
     public function updateCustomerData(array $data)
@@ -91,45 +67,88 @@ class OrderService
         $this->orderRepository->updateSessionData($data);
     }
 
-    public function paymentConfirm(array $validated)
+    /**
+     * Memindahkan data dari Session ke Database
+     */
+
+    public function finalizeOrder()
     {
-        $orderData = $this->orderRepository->getOrderFromSession();
+        $details = $this->getOrderDetails();
+        $orderData = $details['orderData'];
         $productTransactionId = null;
 
-        try {
-            DB::transaction(function () use ($validated, &$productTransactionId, $orderData) {
-                if (isset($validated['proof'])){
-                    $proofPath = $validated['proof']->store('proofs', 'public');
-                    $validated['proof'] = $proofPath;
-                }
-
-                $validated['name'] = $orderData['name'];
-                $validated['email'] = $orderData['email'];
-                $validated['phone'] = $orderData['phone'];
-                $validated['address'] = $orderData['address'];
-                $validated['post_code'] = $orderData['post_code'];
-                $validated['city'] = $orderData['city'];
-                $validated['quantity'] = $orderData['quantity'];
-                $validated['sub_total_amount'] = $orderData['sub_total_amount'];
-                $validated['grand_total_amount'] = $orderData['grand_total_amount'];
-                $validated['discount_amount'] = $orderData['discount_amount'] ?? 0;
-                $validated['promo_code_id'] = $orderData['promo_code_id'] ?? null;
-                $validated['product_id'] = $orderData['product_id'];
-                $validated['variant_details'] = $orderData['variant_details'] ?? null;
-                $validated['is_paid'] = false;
-                
-                // REVISI: Sesuaikan nama method dengan yang ada di Model ProductTransaction
-                $validated['booking_trx_id'] = ProductTransaction::generateUniqueCode();
-
-                $newTransaction = $this->orderRepository->createTransaction($validated);
-                $productTransactionId = $newTransaction->id;
-            });
-
-        } catch (\Exception $e) {
-            Log::error('Error in payment confirmation: ' . $e->getMessage());
+        if (!isset($orderData['product_id'])) {
+            \Log::error('Finalize Order Error: Product ID missing in session');
             return null;
         }
 
-        return $productTransactionId;
+        try {
+            DB::transaction(function () use (&$productTransactionId, $orderData) {
+                $data = [
+                    'name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                    'phone' => $orderData['phone'] ?? '',
+                    'city' => $orderData['city'] ?? '',
+                    'post_code' => $orderData['post_code'] ?? '',
+                    'address' => $orderData['address'] ?? '',
+
+                    'booking_trx_id' => ProductTransaction::generateUniqueCode(),
+                    'quantity' => $orderData['quantity'] ?? 1,
+                    'sub_total_amount' => $orderData['sub_total_amount'] ?? 0,
+                    'grand_total_amount' => $orderData['grand_total_amount'] ?? 0,
+                    'discount_amount' => $orderData['discount_amount'] ?? 0,
+
+                    // SINKRONISASI DENGAN DOKUMEN PR (Poin 2.5)
+                    'status' => 'pending',
+                    'is_paid' => false,
+
+                    'variant_details' => $orderData['variant_details'] ?? null,
+                    'st_product_id' => $orderData['product_id'],
+                    'st_promo_code_id' => $orderData['promo_code_id'] ?? null,
+                    'user_id' => Auth::id(),
+                ];
+
+                $newTransaction = $this->orderRepository->createTransaction($data);
+                $productTransactionId = $newTransaction->id;
+            });
+
+            return $productTransactionId;
+        } catch (\Exception $e) {
+            \Log::error('Finalize Order Error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function getSnapToken($transactionId) {
+        $transaction = ProductTransaction::with('product')->findOrFail($transactionId);
+
+        // Konfigurasi Midtrans
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = config('midtrans.is_production');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $transaction->booking_trx_id,
+                'gross_amount' => (int)$transaction->grand_total_amount,
+            ],
+            'customer_details' => [
+                'first_name' => $transaction->name,
+                'email' => $transaction->email,
+                'phone' => $transaction->phone,
+            ],
+            'item_details' => [
+                [
+                    // PERBAIKAN: Gunakan st_product_id sesuai Model lo
+                    'id' => $transaction->st_product_id,
+                    'price' => (int)($transaction->grand_total_amount / $transaction->quantity),
+                    'quantity' => $transaction->quantity,
+                    'name' => $transaction->product->name,
+                ]
+            ]
+        ];
+
+        return Snap::getSnapToken($params);
     }
 }

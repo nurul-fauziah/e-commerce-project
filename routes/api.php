@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ShopApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// B2C Public Routes
+Route::get('/shop-data', [ShopApiController::class, 'index']);
+Route::get('/category/{category:slug}', [ShopApiController::class, 'category']);
+Route::get('/product/{product:slug}', [ShopApiController::class, 'details']);
+Route::post('/check-booking', [ShopApiController::class, 'checkBooking']);

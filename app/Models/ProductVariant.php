@@ -10,6 +10,8 @@ class ProductVariant extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'st_product_variants';
+
     protected $fillable = [
         'variant_name', // Misal: RAM, Storage
         'variant_value', // Misal: 16GB, 512GB

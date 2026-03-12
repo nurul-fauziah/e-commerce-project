@@ -2,13 +2,18 @@
 
 namespace App\Providers;
 
-use App\Models\Product;
-use App\Repositories\CategoryRepository;
+// 1. IMPORT SEMUA INTERFACE
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
+use App\Repositories\Contracts\OrderRepositoryInterface;
+use App\Repositories\Contracts\PromoCodeRepositoryInterface;
+
+// 2. IMPORT SEMUA REPOSITORY (IMPLEMENTASI)
+use App\Repositories\CategoryRepository;
+use App\Repositories\ProductRepository;
 use App\Repositories\OrderRepository;
 use App\Repositories\PromoCodeRepository;
-use App\Repositories\ProductRepository;
+
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,13 +23,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // POLA: singleton(Interface::class, Implementasi::class)
+
+        // Binding Category
         $this->app->singleton(CategoryRepositoryInterface::class, CategoryRepository::class);
 
+        // Binding Product
         $this->app->singleton(ProductRepositoryInterface::class, ProductRepository::class);
 
-        $this->app->singleton(OrderRepository::class, OrderRepository::class);
+        // Binding Order (Tadi lo salah di sini, lo malah bind Class ke Class)
+        $this->app->singleton(OrderRepositoryInterface::class, OrderRepository::class);
 
-        $this->app->singleton(PromoCodeRepository::class, PromoCodeRepository::class);
+        // Binding PromoCode (Tadi lo salah di sini juga)
+        $this->app->singleton(PromoCodeRepositoryInterface::class, PromoCodeRepository::class);
     }
 
     /**

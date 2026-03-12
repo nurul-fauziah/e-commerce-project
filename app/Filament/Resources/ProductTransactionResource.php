@@ -11,13 +11,13 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
 
 class ProductTransactionResource extends Resource
 {
     protected static ?string $model = ProductTransaction::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationGroup = 'Sales Management';
 
     public static function form(Form $form): Form
     {
@@ -28,7 +28,8 @@ class ProductTransactionResource extends Resource
                         ->icon('heroicon-o-device-phone-mobile')
                         ->schema([
                             Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\Select::make('product_id')
+                                // 1. Ubah jadi st_product_id
+                                Forms\Components\Select::make('st_product_id')
                                     ->relationship('product', 'name')
                                     ->required()
                                     ->searchable()
@@ -37,6 +38,8 @@ class ProductTransactionResource extends Resource
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                         $product = Product::find($state);
                                         $price = $product ? $product->price : 0;
+
+                                        // price_per_item ini cuma buat helper di form aja
                                         $set('price_per_item', $price);
 
                                         $qty = $get('quantity') ?? 1;
@@ -63,7 +66,7 @@ class ProductTransactionResource extends Resource
                                         $set('grand_total_amount', $subtotal - ($get('discount_amount') ?? 0));
                                     }),
 
-                                Forms\Components\Select::make('promo_code_id')
+                                Forms\Components\Select::make('st_promo_code_id')
                                     ->relationship('promoCode', 'code')
                                     ->live()
                                     ->afterStateUpdated(function ($state, callable $get, callable $set) {
@@ -89,11 +92,18 @@ class ProductTransactionResource extends Resource
                         ->icon('heroicon-o-user')
                         ->schema([
                             Forms\Components\Grid::make(2)->schema([
+                                // 2. Tambahin st_booking_trx_id biar kegenerate otomatis tapi nggak bisa diedit
+                                Forms\Components\TextInput::make('st_booking_trx_id')
+                                    ->label('Transaction ID')
+                                    ->default(fn () => ProductTransaction::generateUniqueCode())
+                                    ->readOnly()
+                                    ->required(),
+
                                 Forms\Components\TextInput::make('name')->required(),
                                 Forms\Components\TextInput::make('phone')->tel()->required(),
                                 Forms\Components\TextInput::make('email')->email()->required(),
                                 Forms\Components\TextInput::make('city')->required(),
-                                Forms\Components\TextArea::make('address')->required()->columnSpanFull(),
+                                Forms\Components\Textarea::make('address')->required()->columnSpanFull(),
                                 Forms\Components\FileUpload::make('proof')->image()->required(),
                                 Forms\Components\Toggle::make('is_paid')->label('Payment Verified')->columnSpanFull(),
                             ]),
@@ -106,12 +116,27 @@ class ProductTransactionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('booking_trx_id')->searchable()->copyable(),
-                Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('product.name'),
-                Tables\Columns\TextColumn::make('grand_total_amount')->money('IDR'),
-                Tables\Columns\IconColumn::make('is_paid')->boolean()->label('Paid'),
-                Tables\Columns\TextColumn::make('created_at')->dateTime(),
+                // 3. Ubah jadi st_booking_trx_id biar datanya muncul
+                Tables\Columns\TextColumn::make('st_booking_trx_id')
+                    ->label('TRX ID')
+                    ->searchable()
+                    ->copyable()
+                    ->fontFamily('mono'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Customer')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('product.name')
+                    ->description(fn ($record) => "Variant: {$record->variant_details}"),
+                Tables\Columns\TextColumn::make('grand_total_amount')
+                    ->money('IDR')
+                    ->weight('bold')
+                    ->color('success'),
+                Tables\Columns\TextColumn::make('is_paid')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'PAID' : 'PENDING')
+                    ->color(fn (bool $state): string => $state ? 'success' : 'warning'),
+                Tables\Columns\TextColumn::make('created_at')->dateTime()->since()->label('Time'),
             ])
             ->actions([
                 Tables\Actions\Action::make('approve')

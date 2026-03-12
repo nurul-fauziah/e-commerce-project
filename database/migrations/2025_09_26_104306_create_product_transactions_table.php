@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('booking_trx_id');
             $table->string('city');
             $table->string('post_code');
-            $table->string('proof'); // Bukti transfer
+            $table->string('proof')->nullable(); // Bukti transfer
 
             $table->string('variant_details')->nullable(); // Nyimpen varian yang dipilih (misal: "RAM 16GB, Blue")
             $table->text('address');
@@ -31,6 +31,7 @@ return new class extends Migration
 
             $table->foreignId('st_product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('st_promo_code_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

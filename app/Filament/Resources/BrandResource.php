@@ -3,33 +3,48 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\BrandResource\Pages;
-use App\Filament\Resources\BrandResource\RelationManagers;
 use App\Models\Brand;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BrandResource extends Resource
 {
     protected static ?string $model = Brand::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-tag';
+    protected static ?string $navigationGroup = 'Shop Management';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('logo')
-                    ->image()
-                    ->required(),
+                Section::make('Brand Information')
+                    ->description('Manage brand details and identity.')
+                    ->icon('heroicon-m-information-circle')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('e.g. Samsung, Apple'),
+
+                                Forms\Components\FileUpload::make('logo')
+                                    ->image()
+                                    ->imageEditor()
+                                    ->imageEditorAspectRatios([
+                                        '1:1',
+                                    ])
+                                    ->directory('brands')
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ]),
+                    ])->columnSpan(2),
             ]);
     }
 
@@ -37,32 +52,25 @@ class BrandResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\ImageColumn::make('logo')
+                    ->circular(), // Di Tabel BOLEH pake circular()
                 Tables\Columns\TextColumn::make('name')
+                    ->weight('bold')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Last Updated')
+                    ->dateTime()
                     ->sortable()
-                    ->searchable(),
-
-                Tables\Columns\ImageColumn::make('logo'),
-                    // ->circular(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->defaultSort('name')
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array
