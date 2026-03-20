@@ -10,6 +10,8 @@ class ProductPhoto extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'st_product_photos';
+
     protected $fillable = [
         'photo',
         'st_product_id',

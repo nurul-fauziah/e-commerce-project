@@ -25,6 +25,11 @@ class Product extends Model
         'is_popular',
         'st_category_id',
         'st_brand_id',
+        'specifications',
+    ];
+
+    protected $casts = [
+        'specifications' => 'array',
     ];
 
     public function setNameAttribute($value){
@@ -49,4 +54,6 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class, 'st_product_id');
     }
+
+
 }

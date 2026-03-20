@@ -19,9 +19,10 @@ class Category extends Model
         'slug',
         'icon',
     ];
-    
-    public function products(): HasMany{
-        return $this->hasMany(Product::class);
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'st_category_id');
     }
 
     public function setNameAttribute($value){

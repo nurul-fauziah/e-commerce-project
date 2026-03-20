@@ -3,77 +3,97 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomerDataRequest;
-use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\StorePaymentRequest;
 use App\Models\ProductTransaction;
-use App\Models\Product;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    //
-
     protected $orderService;
 
-    public function __construct($orderService)
+    public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
     }
 
-    public function saveOrder(StoreOrderRequest $request, Product $product)
+    public function beginCheckout(Request $request)
     {
-        $validated = $request->validated();
+        $success = $this->orderService->beginCheckout();
 
-        $validated['product_id'] = $product->id;
+        if (!$success) {
+            return redirect()->route('front.cart')->withErrors(['error' => 'Keranjang kosong. Tidak dapat melakukan checkout.']);
+        }
 
-        $this->orderService->beginOrder($validated);
-
-        return redirect()->route('front.booking', $product->slug);
+        return redirect()->route('front.booking');
     }
 
     public function booking()
     {
         $data = $this->orderService->getOrderDetails();
+
+        if (empty($data['orderData']['cart_items'])) {
+            return redirect()->route('front.cart');
+        }
+
         return view('order.order', $data);
     }
 
     public function customerData()
     {
         $data = $this->orderService->getOrderDetails();
+
+        if (empty($data['orderData']['cart_items'])) {
+            return redirect()->route('front.cart');
+        }
+
         return view('order.customer_data', $data);
     }
 
     public function saveCustomerData(StoreCustomerDataRequest $request)
     {
-        $validated = $request->validate();
+        $validated = $request->validated();
         $this->orderService->updateCustomerData($validated);
 
-        return redirect()->route('front.payment');
+        $transactionId = $this->orderService->finalizeOrder();
+
+        if ($transactionId) {
+            session()->put('transaction_id', $transactionId);
+            // PERBAIKAN: Memaksa penyimpanan session sebelum redirect
+            session()->save();
+
+            return redirect()->route('order.payment');
+        }
+
+        return redirect()->back()->withErrors(['error' => 'Gagal membuat ID Transaksi.']);
     }
 
     public function payment()
     {
-        $data = $this->orderService->getOrderDetails();
-        return view('order.payment', $data);
-    }
+        $id = session()->get('transaction_id');
 
-    public function paymentConfirm(StorePaymentRequest $request)
-    {
-        $validated = $request->validate();
-
-        $productTransactionId = $this->orderService->paymentConfirm($validated);
-
-        if ($productTransactionId) {
-            return redirect()->route('front.order_finished',  $productTransactionId);
+        // CEK 1: Apakah Session berhasil tersimpan?
+        if (!$id) {
+            dd('ERROR CEK 1: Session transaction_id KOSONG! Artinya proses saveCustomerData gagal menyimpan session.');
         }
 
-        return redirect()->route('front.index')->withErrors(['error' => 'Payment failed. Please try again.']);
+        $transaction = ProductTransaction::findOrFail($id);
 
+        try {
+            $snapToken = $this->orderService->getSnapToken($id);
+            return view('order.payment', compact('transaction', 'snapToken'));
+        } catch (\Exception $e) {
+            // CEK 2: Apakah Midtrans menolak data kita?
+            dd('ERROR CEK 2 (MIDTRANS MENOLAK): ' . $e->getMessage());
+        }
     }
 
-    public function orderFinished(ProductTransaction $productTransactionId)
+    // Step 6: Halaman Sukses
+    public function orderFinished($id)
     {
-        dd($productTransactionId);
+        // Panggil transaksi beserta detail dan produknya
+        $productTransaction = ProductTransaction::with('transactionDetails.product')->findOrFail($id);
+
+        return view('order.order_finished', compact('productTransaction'));
     }
 }

@@ -3,35 +3,36 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PromoCodeResource\Pages;
-use App\Filament\Resources\PromoCodeResource\RelationManagers;
 use App\Models\PromoCode;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PromoCodeResource extends Resource
 {
     protected static ?string $model = PromoCode::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-percent-badge';
+    protected static ?string $navigationIcon = 'heroicon-o-ticket';
+    protected static ?string $navigationGroup = 'Shop Management';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
-                Forms\Components\TextInput::make('code')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Section::make('Promo Details')
+                    ->schema([
+                        Forms\Components\TextInput::make('code')
+                            ->required()
+                            ->maxLength(255)
+                            ->placeholder('e.g. SMARTTECH2024'),
 
-                Forms\Components\TextInput::make('discount_amount')
-                    ->required()
-                    ->numeric()
-                    ->prefix('IDR'),
+                        Forms\Components\TextInput::make('discount_amount')
+                            ->required()
+                            ->numeric()
+                            ->prefix('IDR'),
+                    ])
             ]);
     }
 
@@ -39,32 +40,25 @@ class PromoCodeResource extends Resource
     {
         return $table
             ->columns([
-                //
                 Tables\Columns\TextColumn::make('code')
-                ->label('Promo Code')
-                ->searchable()
-                ->sortable(),
-
-            ])
-
-            ->filters([
-                //
+                    ->label('Promo Code')
+                    ->fontFamily('mono')
+                    ->weight('bold')
+                    ->copyable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('discount_amount')
+                    ->label('Discount')
+                    ->money('IDR')
+                    ->color('danger'),
+                Tables\Columns\TextColumn::make('product_transactions_count')
+                    ->counts('productTransactions')
+                    ->label('Usage')
+                    ->badge(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
     }
 
     public static function getPages(): array

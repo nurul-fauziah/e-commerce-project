@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug');
             $table->string('thumbnail');
-            $table->text('about'); // Deskripsi spek lengkap
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('price');
             $table->unsignedBigInteger('stock');
             $table->boolean('is_popular')->default(false);

@@ -1,286 +1,87 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="{{'output.css'}}" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    </head>
-    <body>
-        <div class="relative flex flex-col w-full max-w-[640px] min-h-screen gap-5 mx-auto bg-[#F5F5F0]">
-            <div id="top-bar" class="flex justify-between items-center px-4 mt-[60px]">
-                <img src="assets/images/logos/logo.svg" class="flex shrink-0" alt="logo">
-                <a href="#">
-                    <img src="assets/images/icons/notification.svg" class="w-10 h-10" alt="icon">
-                </a>
+@extends('layouts.front')
+
+@section('title', 'SmartTech - Industrial Electronics Store')
+
+@section('content')
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+    <!-- Category Section -->
+    <section id="categories" class="mb-24 md:mb-32">
+        <div class="flex items-center justify-between mb-12">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold uppercase tracking-[0.4em] opacity-40 mb-2">System_Modules</span>
+                <h2 class="text-4xl md:text-6xl font-black italic uppercase tracking-tighter leading-none">Hardware_Classification</h2>
             </div>
-            <form class="flex justify-between items-center mx-4">
-                <div class="relative flex items-center w-full rounded-l-full px-[14px] gap-[10px] bg-white transition-all duration-300 focus-within:ring-2 focus-within:ring-[#FFC700]">
-                    <img src="assets/images/icons/search-normal.svg" class="w-6 h-6" alt="icon">
-                    <input type="text" class="w-full py-[14px] appearance-none bg-white outline-none font-semibold placeholder:font-normal placeholder:text-[#878785]" placeholder="Search product...">
-                </div>
-                <button type="submit" class="h-full rounded-r-full py-[14px] px-5 bg-[#C5F277]">
-                    <span class="font-semibold">Explore</span>
-                </button>
-            </form>
-            <section id="category" class="flex flex-col gap-4 px-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="font-bold leading-[20px]">Our Featured <br>Categories</h2>
-                    <a href="category.html" class="rounded-full p-[6px_14px] border border-[#2A2A2A] text-xs leading-[18px]">
-                        View All
-                    </a>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <a href="category.html">
-                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="flex flex-col gap-[2px] px-[14px]">
-                                <h3 class="font-bold text-sm leading-[21px]">Lifestyle</h3>
-                                <p class="text-xs leading-[18px] text-[#878785]">223 Shoes</p>
-                            </div>
-                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo1.png" class="w-full h-full object-cover object-left" alt="thumbnail">
-                            </div>
-                        </div>
-                    </a>
-                    <a href="category.html">
-                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="flex flex-col gap-[2px] px-[14px]">
-                                <h3 class="font-bold text-sm leading-[21px]">Running</h3>
-                                <p class="text-xs leading-[18px] text-[#878785]">12 Shoes</p>
-                            </div>
-                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo2.png" class="w-full h-full object-cover object-left" alt="thumbnail">
-                            </div>
-                        </div>
-                    </a>
-                    <a href="category.html">
-                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="flex flex-col gap-[2px] px-[14px]">
-                                <h3 class="font-bold text-sm leading-[21px]">Gym</h3>
-                                <p class="text-xs leading-[18px] text-[#878785]">142 Shoes</p>
-                            </div>
-                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo3.png" class="w-full h-full object-cover object-left" alt="thumbnail">
-                            </div>
-                        </div>
-                    </a>
-                    <a href="category.html">
-                        <div class="flex items-center justify-between w-full rounded-2xl overflow-hidden bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="flex flex-col gap-[2px] px-[14px]">
-                                <h3 class="font-bold text-sm leading-[21px]">Sandal</h3>
-                                <p class="text-xs leading-[18px] text-[#878785]">51 Shoes</p>
-                            </div>
-                            <div class="flex shrink-0 w-20 h-[90px] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo4.png" class="w-full h-full object-cover object-left" alt="thumbnail">
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </section>
-            <section id="featured" class="flex flex-col gap-4">
-                <div class="flex items-center justify-between px-4">
-                    <h2 class="font-bold leading-[20px]">Explore Our <br>Featured</h2>
-                    <a href="#" class="rounded-full p-[6px_14px] border border-[#2A2A2A] text-xs leading-[18px]">
-                        View All
-                    </a>
-                </div>
-                <div class="swiper w-full overflow-hidden">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide !w-fit py-[2px]">
-                            <a href="details.html">
-                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
-                                        <img src="assets/images/thumbnails/image1.png" class="w-full h-full object-cover" alt="thumbnail">
-                                    </div>
-                                    <div class="flex flex-col gap-[14px] justify-between">
-                                        <div class="flex items-center justify-between gap-4">
-                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
-                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
-                                        </div>
-                                        <div class="flex items-center justify-between gap-2">
-                                            <div class="flex items-center gap-1">
-                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
-                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                            </div>
-                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="swiper-slide !w-fit py-[2px]">
-                            <a href="details.html">
-                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
-                                        <img src="assets/images/thumbnails/image2.png" class="w-full h-full object-cover" alt="thumbnail">
-                                    </div>
-                                    <div class="flex flex-col gap-[14px] justify-between">
-                                        <div class="flex items-center justify-between gap-4">
-                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
-                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
-                                        </div>
-                                        <div class="flex items-center justify-between gap-2">
-                                            <div class="flex items-center gap-1">
-                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
-                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                            </div>
-                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="swiper-slide !w-fit py-[2px]">
-                            <a href="details.html">
-                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
-                                        <img src="assets/images/thumbnails/image1.png" class="w-full h-full object-cover" alt="thumbnail">
-                                    </div>
-                                    <div class="flex flex-col gap-[14px] justify-between">
-                                        <div class="flex items-center justify-between gap-4">
-                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
-                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
-                                        </div>
-                                        <div class="flex items-center justify-between gap-2">
-                                            <div class="flex items-center gap-1">
-                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
-                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                            </div>
-                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="swiper-slide !w-fit py-[2px]">
-                            <a href="details.html">
-                                <div class="flex flex-col shrink-0 w-[230px] h-full rounded-3xl gap-[14px] p-[10px] pb-4 bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                                    <div class="w-[210px] h-[230px] rounded-3xl bg-[#D9D9D9] overflow-hidden">
-                                        <img src="assets/images/thumbnails/image2.png" class="w-full h-full object-cover" alt="thumbnail">
-                                    </div>
-                                    <div class="flex flex-col gap-[14px] justify-between">
-                                        <div class="flex items-center justify-between gap-4">
-                                            <h3 class="font-bold leading-[20px]">Nike Zoom SD 4 Electric</h3>
-                                            <p class="font-bold text-sm leading-[21px] text-nowrap">Rp 128.000</p>
-                                        </div>
-                                        <div class="flex items-center justify-between gap-2">
-                                            <div class="flex items-center gap-1">
-                                                <img src="assets/images/icons/Star 1.svg" class="w-[22px] h-[22px]" alt="star">
-                                                <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                            </div>
-                                            <p class="text-sm leading-[21px] text-[#878785]">(18,485 reviews)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="fresh" class="flex flex-col gap-4 px-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="font-bold leading-[20px]">Fresh From <br>Great Designers</h2>
-                    <a href="#" class="rounded-full p-[6px_14px] border border-[#2A2A2A] text-xs leading-[18px]">
-                        View All
-                    </a>
-                </div>
-                <div class="flex flex-col gap-4">
-                    <a href="details.html">
-                        <div class="flex items-center rounded-3xl p-[10px_16px_16px_10px] gap-[14px] bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="w-20 h-20 flex shrink-0 rounded-2xl bg-[#D9D9D9] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo5.png" class="w-full h-full object-cover" alt="thumbnail">
-                            </div>
-                            <div class="flex w-full items-center justify-between gap-[14px]">
-                                <div class="flex flex-col gap-[6px]">
-                                    <h3 class="font-bold leading-[20px]">Hello Kity Sandal Lite</h3>
-                                    <p class="text-sm leading-[21px] text-[#878785]">Sandal</p>
-                                </div>
-                                <div class="flex flex-col gap-1 items-end shrink-0">
-                                    <div class="flex">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                    </div>
-                                    <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="details.html">
-                        <div class="flex items-center rounded-3xl p-[10px_16px_16px_10px] gap-[14px] bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="w-20 h-20 flex shrink-0 rounded-2xl bg-[#D9D9D9] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo6.png" class="w-full h-full object-cover" alt="thumbnail">
-                            </div>
-                            <div class="flex w-full items-center justify-between gap-[14px]">
-                                <div class="flex flex-col gap-[6px]">
-                                    <h3 class="font-bold leading-[20px]">Hello Kity Sandal Lite</h3>
-                                    <p class="text-sm leading-[21px] text-[#878785]">Sandal</p>
-                                </div>
-                                <div class="flex flex-col gap-1 items-end shrink-0">
-                                    <div class="flex">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                    </div>
-                                    <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="details.html">
-                        <div class="flex items-center rounded-3xl p-[10px_16px_16px_10px] gap-[14px] bg-white transition-all duration-300 hover:ring-2 hover:ring-[#FFC700]">
-                            <div class="w-20 h-20 flex shrink-0 rounded-2xl bg-[#D9D9D9] overflow-hidden">
-                                <img src="assets/images/thumbnails/photo7.png" class="w-full h-full object-cover" alt="thumbnail">
-                            </div>
-                            <div class="flex w-full items-center justify-between gap-[14px]">
-                                <div class="flex flex-col gap-[6px]">
-                                    <h3 class="font-bold leading-[20px]">Hello Kity Sandal Lite</h3>
-                                    <p class="text-sm leading-[21px] text-[#878785]">Sandal</p>
-                                </div>
-                                <div class="flex flex-col gap-1 items-end shrink-0">
-                                    <div class="flex">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                        <img src="assets/images/icons/Star 1.svg" class="w-[18px] h-[18px] flex shrink-0" alt="star">
-                                    </div>
-                                    <p class="font-semibold text-sm leading-[21px]">4.5</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </section>
-            <div id="bottom-nav" class="relative flex h-[100px] w-full shrink-0">
-                <nav class="fixed bottom-5 w-full max-w-[640px] px-4 z-30">
-                    <div class="grid grid-flow-col auto-cols-auto items-center justify-between rounded-full bg-[#2A2A2A] p-2 px-[30px]">
-                        <a href="index.html" class="active flex shrink-0 -mx-[22px]">
-                            <div class="flex items-center rounded-full gap-[10px] p-[12px_16px] bg-[#C5F277]">
-                                <img src="assets/images/icons/3dcube.svg" class="w-6 h-6" alt="icon">
-                                <span class="font-bold text-sm leading-[21px]">Browse</span>
-                            </div>
-                        </a>
-                        <a href="check-booking.html" class="mx-auto w-full">
-                            <img src="assets/images/icons/bag-2-white.svg" class="w-6 h-6" alt="icon">
-                        </a>
-                        <a href="#" class="mx-auto w-full">
-                            <img src="assets/images/icons/star-white.svg" class="w-6 h-6" alt="icon">
-                        </a>
-                        <a href="#" class="mx-auto w-full">
-                            <img src="assets/images/icons/24-support-white.svg" class="w-6 h-6" alt="icon">
-                        </a>
-                    </div>
-                </nav>
-            </div>
+            <div class="h-1 flex-1 bg-black ml-12 hidden lg:block"></div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-        <script src="js/index.js"></script>
-    </body>
-</html>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+            @foreach($categories as $category)
+            <a href="{{ route('front.category', $category->slug) }}" class="group">
+                <div class="bg-white border-4 border-black p-6 md:p-10 shadow-brutal group-hover:shadow-brutal-neon group-hover:-translate-x-1 group-hover:-translate-y-1 transition-all h-full flex flex-col justify-between">
+                    <div class="w-14 h-14 md:w-20 md:h-20 bg-[#F5F5F0] border-2 border-black flex items-center justify-center group-hover:bg-[#C5F277] transition-colors mb-8">
+                        <span class="font-black text-2xl md:text-4xl italic uppercase">{{ substr($category->name, 0, 1) }}</span>
+                    </div>
+                    <div>
+                        <h3 class="font-black italic uppercase text-xl md:text-3xl leading-none mb-2">{{ $category->name }}</h3>
+                        <p class="text-[9px] md:text-[11px] font-bold opacity-40 tracking-widest uppercase">
+                            {{ $category->products_count ?? $category->products->count() }} Items_Logged
+                        </p>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </section>
+
+    <!-- Featured Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-20 gap-8">
+        <div class="max-w-3xl">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="bg-black text-white px-3 py-1 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.3em]">Status: Operational</span>
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            </div>
+            <h2 class="text-6xl md:text-9xl font-black italic tracking-tighter leading-[0.8] uppercase">
+                Hardware <br><span class="text-white bg-black px-4">Terpopuler</span>
+            </h2>
+        </div>
+        <div class="max-w-xs">
+            <p class="text-xs md:text-sm font-semibold opacity-60 border-l-8 border-[#C5F277] pl-6 py-2 italic">
+                "Kurasi perangkat keras terbaik dengan standar industri. Performa maksimal untuk kebutuhan profesional."
+            </p>
+        </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-16">
+        @forelse ($popularProducts as $product)
+        <div class="group relative">
+            <a href="{{ route('front.details', $product->slug) }}" class="block bg-white border-4 border-black p-6 shadow-brutal-lg transition-all group-hover:shadow-brutal-neon group-hover:-translate-x-2 group-hover:-translate-y-2">
+                <div class="aspect-square bg-[#E4E3E0] border-2 border-black mb-8 overflow-hidden relative">
+                    <img src="{{ is_string($product->thumbnail) && str_starts_with($product->thumbnail, 'http') ? $product->thumbnail : Storage::url($product->thumbnail) }}"
+                         class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100"
+                         alt="{{ $product->name }}">
+                    <div class="absolute top-4 right-4 bg-black text-white text-[9px] px-3 py-1 font-bold uppercase tracking-widest shadow-[4px_4px_0px_0px_#C5F277]">In_Stock</div>
+                </div>
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">{{ $product->category->name ?? 'Uncategorized' }}</p>
+                        <h3 class="text-3xl md:text-4xl font-black italic tracking-tight uppercase leading-none">{{ $product->name }}</h3>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-8 border-t-4 border-black border-dashed">
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-bold opacity-40 uppercase tracking-widest">Unit_Price</span>
+                        <span class="font-black text-2xl md:text-3xl italic">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="bg-black text-white p-4 group-hover:bg-[#C5F277] group-hover:text-black transition-all border-2 border-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </div>
+                </div>
+            </a>
+        </div>
+        @empty
+        <p>No products found.</p>
+        @endforelse
+    </div>
+</main>
+@endsection

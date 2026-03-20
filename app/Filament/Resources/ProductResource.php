@@ -11,12 +11,14 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip'; // Icon Tech
+    protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
+    protected static ?string $navigationGroup = 'Shop Management';
 
     public static function form(Form $form): Form
     {
@@ -30,7 +32,7 @@ class ProductResource extends Resource
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
-                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                                 Forms\Components\TextInput::make('slug')
                                     ->disabled()
@@ -42,7 +44,8 @@ class ProductResource extends Resource
                                     ->columnSpanFull(),
                             ])->columnSpan(2),
 
-                        Section::make('Pricing & Inventory')
+                        Section::make('Pricing & Inventory (Base)')
+                            ->description('Harga dan stok dasar jika produk tidak memiliki varian khusus.')
                             ->schema([
                                 Forms\Components\TextInput::make('price')
                                     ->required()
@@ -64,13 +67,13 @@ class ProductResource extends Resource
                 Section::make('Media & Categorization')
                     ->schema([
                         Grid::make(2)->schema([
-                            Forms\Components\Select::make('category_id')
+                            Forms\Components\Select::make('st_category_id')
                                 ->relationship('category', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
 
-                            Forms\Components\Select::make('brand_id')
+                            Forms\Components\Select::make('st_brand_id')
                                 ->relationship('brand', 'name')
                                 ->searchable()
                                 ->preload()
@@ -78,22 +81,49 @@ class ProductResource extends Resource
                         ]),
                         Forms\Components\FileUpload::make('thumbnail')
                             ->image()
+                            ->imageEditor()
                             ->directory('products')
                             ->required(),
                     ]),
 
                 Section::make('Product Variants & Gallery')
                     ->schema([
+                        // REVISI UTAMA: Repeater untuk Varian Elektronik
                         Forms\Components\Repeater::make('variants')
                             ->relationship('variants')
                             ->schema([
-                                Forms\Components\TextInput::make('variant_name')
-                                    ->placeholder('e.g. RAM, Storage')
+                                Grid::make(3)->schema([
+                                    Forms\Components\TextInput::make('sku')
+                                        ->label('SKU (Kode Barang)')
+                                        ->required()
+                                        // Validasi unik agar tidak ada SKU ganda di database
+                                        ->unique(ignoreRecord: true),
+
+                                    Forms\Components\TextInput::make('price')
+                                        ->label('Harga Varian')
+                                        ->numeric()
+                                        ->prefix('IDR')
+                                        ->required(),
+
+                                    Forms\Components\TextInput::make('stock')
+                                        ->label('Stok Varian')
+                                        ->numeric()
+                                        ->required(),
+                                ]),
+
+                                // Komponen KeyValue untuk atribut JSON (RAM, Storage, Warna, dll)
+                                Forms\Components\KeyValue::make('attributes')
+                                    ->label('Spesifikasi Teknis Varian')
+                                    ->keyLabel('Jenis Spesifikasi (cth: RAM)')
+                                    ->valueLabel('Nilai (cth: 16GB DDR5)')
+                                    ->addActionLabel('Tambah Spesifikasi')
+                                    ->reorderable()
                                     ->required(),
-                                Forms\Components\TextInput::make('variant_value')
-                                    ->placeholder('e.g. 16GB, 512GB SSD')
-                                    ->required(),
-                            ])->columns(2),
+                            ])
+                            ->itemLabel(fn (array $state): ?string => $state['sku'] ?? 'New Variant')
+                            ->collapsible()
+                            ->defaultItems(1) // Otomatis menampilkan 1 form kosong saat tambah baru
+                            ->columnSpanFull(),
 
                         Forms\Components\Repeater::make('photos')
                             ->relationship('photos')
@@ -110,29 +140,28 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('thumbnail')
-                    ->rounded(),
+                Tables\Columns\ImageColumn::make('thumbnail')->rounded(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->description(fn (Product $record): string => $record->brand->name),
-                Tables\Columns\TextColumn::make('category.name')
-                    ->badge(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money('IDR')
-                    ->sortable(),
+                    ->weight('bold')
+                    ->description(fn (Product $record): string => "Brand: {$record->brand->name}"),
+                Tables\Columns\TextColumn::make('category.name')->badge()->color('info'),
+                Tables\Columns\TextColumn::make('price')->money('IDR')->sortable()->color('success')->weight('bold'),
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_popular')
-                    ->boolean()
-                    ->label('Popular'),
+                    ->sortable()
+                    ->color(fn ($state) => $state < 5 ? 'danger' : 'gray'),
+                Tables\Columns\IconColumn::make('is_popular')->boolean()->label('Popular'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category_id')
+                Tables\Filters\SelectFilter::make('st_category_id')
                     ->relationship('category', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ]);
     }
 

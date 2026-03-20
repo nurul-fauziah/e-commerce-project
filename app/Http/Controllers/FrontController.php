@@ -22,14 +22,64 @@ class FrontController extends Controller
         return view('front.index', $data);
     }
 
-    public function details(Product $product)
+public function details(Product $product)
     {
-        return view('front.details', compact('product'));
+        // Load relasi varian dan foto
+        $product->load(['variants', 'photos']);
+
+        $availableAttributes = [];
+
+        // Ekstrak semua spesifikasi unik dari kolom JSON 'attributes'
+        foreach ($product->variants as $variant) {
+            if (is_array($variant->attributes)) {
+                foreach ($variant->attributes as $key => $value) {
+                    if (!isset($availableAttributes[$key])) {
+                        $availableAttributes[$key] = [];
+                    }
+                    if (!in_array($value, $availableAttributes[$key])) {
+                        $availableAttributes[$key][] = $value;
+                    }
+                }
+            }
+        }
+
+        return view('front.details', compact('product', 'availableAttributes'));
     }
 
     public function category(Category $category)
     {
 
         return view('front.category', compact('category'));
+    }
+
+    public function checkout(Product $product)
+    {
+        return view('front.checkout', compact('product'));
+    }
+
+    public function store_checkout(Request $request, Product $product)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'post_code' => 'required|string',
+            'proof' => 'required|image|mimes:jpg,png,jpeg|max:2048',
+        ]);
+
+        // Simpan bukti transfer
+        if ($request->hasFile('proof')) {
+            $proofPath = $request->file('proof')->store('proofs', 'public');
+            $validated['proof'] = $proofPath;
+        }
+
+        return redirect()->route('front.success');
+    }
+
+    public function success()
+    {
+        return view('front.success');
     }
 }
