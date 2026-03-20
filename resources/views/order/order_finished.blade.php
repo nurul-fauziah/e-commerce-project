@@ -25,13 +25,31 @@
                 <span class="font-black uppercase text-xs opacity-50">Order_ID</span>
                 <span class="font-black italic text-lg">#{{ $productTransaction->booking_trx_id }}</span>
             </div>
-            <div class="flex justify-between border-b-2 border-black border-dashed py-3">
+
+            <div class="flex justify-between border-b-2 border-black border-dashed py-3 items-center">
                 <span class="font-black uppercase text-xs opacity-50">Hardware_Unit</span>
-                <span class="font-black italic text-lg uppercase">{{ $productTransaction->product->name }}</span>
+
+                <!-- LOGIKA MULTI-ITEM -->
+                @php
+                    $firstDetail = $productTransaction->transactionDetails->first();
+                    $extraCount = $productTransaction->transactionDetails->count() - 1;
+                @endphp
+
+                <div class="text-right">
+                    <span class="font-black italic text-lg uppercase block leading-none">
+                        {{ $firstDetail ? $firstDetail->product->name : 'Hardware Modules' }}
+                    </span>
+                    @if($extraCount > 0)
+                        <span class="text-[10px] font-bold bg-black text-[#C5F277] px-2 py-1 mt-1 inline-block">
+                            + {{ $extraCount }} Other Module(s)
+                        </span>
+                    @endif
+                </div>
             </div>
-            <div class="flex justify-between py-3">
+
+            <div class="flex justify-between py-3 items-end mt-2">
                 <span class="font-black uppercase text-xs opacity-50">Total_Paid</span>
-                <span class="font-black italic text-2xl">Rp {{ number_format($productTransaction->grand_total_amount, 0, ',', '.') }}</span>
+                <span class="font-black italic text-3xl">Rp {{ number_format($productTransaction->grand_total_amount, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -39,7 +57,7 @@
             <a href="{{ route('front.index') }}" class="flex-1 bg-black text-white py-6 font-black italic uppercase text-xl border-2 border-black shadow-[8px_8px_0px_0px_#C5F277] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
                 Return_To_Base
             </a>
-            <a href="#" class="flex-1 border-4 border-black py-6 font-black italic uppercase text-xl hover:bg-[#C5F277] transition-all shadow-[8px_8px_0px_0px_#000] active:shadow-none">
+            <a href="{{ route('order.my_orders') }}" class="flex-1 border-4 border-black py-6 font-black italic uppercase text-xl hover:bg-[#C5F277] transition-all shadow-[8px_8px_0px_0px_#000] active:shadow-none">
                 Track_Deployment
             </a>
         </div>

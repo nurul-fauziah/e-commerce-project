@@ -35,10 +35,10 @@
             </a>
 
             <div class="hidden md:flex gap-8 font-bold text-xs uppercase tracking-widest">
-                <a href="#" class="hover:text-emerald-600 transition-colors">Catalog</a>
+                <a href="#catalog" class="hover:text-emerald-600 transition-colors">Catalog</a>
                 <a href="#categories" class="hover:text-emerald-600 transition-colors">Categories</a>
                 @auth
-                    <a href="#" class="hover:text-emerald-600 transition-colors">My_Orders</a>
+                    <a href="{{ route('order.my_orders') }}" class="hover:text-emerald-600 transition-colors">My_Orders</a>
                     <form action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" class="hover:text-red-600 transition-colors uppercase">Logout</button>

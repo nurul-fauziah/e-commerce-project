@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ShopApiController;
+use App\Http\Controllers\Api\PaymentNotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +25,4 @@ Route::get('/shop-data', [ShopApiController::class, 'index']);
 Route::get('/category/{category:slug}', [ShopApiController::class, 'category']);
 Route::get('/product/{product:slug}', [ShopApiController::class, 'details']);
 Route::post('/check-booking', [ShopApiController::class, 'checkBooking']);
+Route::post('/midtrans/notification', [PaymentNotificationController::class, 'handler']);

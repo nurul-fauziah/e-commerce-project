@@ -31,10 +31,10 @@ class AppServiceProvider extends ServiceProvider
         // Binding Product
         $this->app->singleton(ProductRepositoryInterface::class, ProductRepository::class);
 
-        // Binding Order (Tadi lo salah di sini, lo malah bind Class ke Class)
+        // Binding Order
         $this->app->singleton(OrderRepositoryInterface::class, OrderRepository::class);
 
-        // Binding PromoCode (Tadi lo salah di sini juga)
+        // Binding PromoCode
         $this->app->singleton(PromoCodeRepositoryInterface::class, PromoCodeRepository::class);
     }
 

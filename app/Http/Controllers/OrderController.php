@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCustomerDataRequest;
-use App\Http\Requests\StoreOrderRequest;
 use App\Models\ProductTransaction;
-use App\Models\Product;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,69 +17,64 @@ class OrderController extends Controller
         $this->orderService = $orderService;
     }
 
-    // Step 1: Simpan produk & varian ke session
-    public function saveOrder(StoreOrderRequest $request, Product $product)
+    public function beginCheckout(Request $request)
     {
-        $validated = $request->validated();
-        $validated['product_id'] = $product->id;
+        $success = $this->orderService->beginCheckout();
 
-        $this->orderService->beginOrder($validated);
+        if (!$success) {
+            return redirect()->route('front.cart')->withErrors(['error' => 'Keranjang kosong. Tidak dapat melakukan checkout.']);
+        }
 
         return redirect()->route('front.booking');
     }
 
-    // Step 2: Tampilkan ringkasan order
     public function booking()
     {
         $data = $this->orderService->getOrderDetails();
-        if (!$data['product']) return redirect()->route('front.index');
+
+        if (empty($data['orderData']['cart_items'])) {
+            return redirect()->route('front.cart');
+        }
 
         return view('order.order', $data);
     }
 
-    // Step 3: Form Data Diri
     public function customerData()
     {
         $data = $this->orderService->getOrderDetails();
-        if (!$data['product']) return redirect()->route('front.index');
+
+        if (empty($data['orderData']['cart_items'])) {
+            return redirect()->route('front.cart');
+        }
 
         return view('order.customer_data', $data);
     }
 
-    // Step 4: Simpan data diri ke session & buat transaksi di DB
-
     public function saveCustomerData(StoreCustomerDataRequest $request)
     {
         $validated = $request->validated();
-
-        // 1. Update data customer di session
         $this->orderService->updateCustomerData($validated);
 
-        // 2. PINDAHKAN DATA DARI SESSION KE DATABASE (Penting!)
         $transactionId = $this->orderService->finalizeOrder();
 
         if ($transactionId) {
-            // 3. Simpan ID transaksi ke session buat dipake di halaman payment
             session()->put('transaction_id', $transactionId);
+            // PERBAIKAN: Memaksa penyimpanan session sebelum redirect
+            session()->save();
 
-            return redirect()->route('front.payment');
+            return redirect()->route('order.payment');
         }
 
-        // Kalau gagal simpan ke DB, balik ke form dengan error
-        return redirect()->back()->withErrors(['error' => 'Failed to initialize transaction. Check your database logs.']);
+        return redirect()->back()->withErrors(['error' => 'Gagal membuat ID Transaksi.']);
     }
 
-
-
-    // Step 5: Halaman Pembayaran (Munculin Tombol Bayar)
     public function payment()
     {
-        // Ambil ID dari session
         $id = session()->get('transaction_id');
 
+        // CEK 1: Apakah Session berhasil tersimpan?
         if (!$id) {
-            // Kalau ID nggak ada di session, lempar ke home (ini yang bikin lo balik ke awal)
-            return redirect()->route('front.index')->withErrors(['error' => 'No active transaction found.']);
+            dd('ERROR CEK 1: Session transaction_id KOSONG! Artinya proses saveCustomerData gagal menyimpan session.');
         }
 
         $transaction = ProductTransaction::findOrFail($id);
@@ -90,14 +83,17 @@ class OrderController extends Controller
             $snapToken = $this->orderService->getSnapToken($id);
             return view('order.payment', compact('transaction', 'snapToken'));
         } catch (\Exception $e) {
-            \Log::error('Midtrans Error: ' . $e->getMessage());
-            return redirect()->route('front.index')->withErrors(['error' => 'Payment gateway error.']);
+            // CEK 2: Apakah Midtrans menolak data kita?
+            dd('ERROR CEK 2 (MIDTRANS MENOLAK): ' . $e->getMessage());
         }
     }
 
     // Step 6: Halaman Sukses
-    public function orderFinished(ProductTransaction $productTransaction)
+    public function orderFinished($id)
     {
+        // Panggil transaksi beserta detail dan produknya
+        $productTransaction = ProductTransaction::with('transactionDetails.product')->findOrFail($id);
+
         return view('order.order_finished', compact('productTransaction'));
     }
 }

@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('SmartTech Shop')
             ->brandLogo(asset('assets/images/logos/logo2.png'))
             ->brandLogoHeight('5rem')
-            ->favicon(asset('assets/images/logos/logo.png'))
+            ->favicon(asset('assets/images/logos/logo1.png'))
             ->colors([
                 'primary' => Color::Blue,
             ])

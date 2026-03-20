@@ -22,9 +22,28 @@ class FrontController extends Controller
         return view('front.index', $data);
     }
 
-    public function details(Product $product)
+public function details(Product $product)
     {
-        return view('front.details', compact('product'));
+        // Load relasi varian dan foto
+        $product->load(['variants', 'photos']);
+
+        $availableAttributes = [];
+
+        // Ekstrak semua spesifikasi unik dari kolom JSON 'attributes'
+        foreach ($product->variants as $variant) {
+            if (is_array($variant->attributes)) {
+                foreach ($variant->attributes as $key => $value) {
+                    if (!isset($availableAttributes[$key])) {
+                        $availableAttributes[$key] = [];
+                    }
+                    if (!in_array($value, $availableAttributes[$key])) {
+                        $availableAttributes[$key][] = $value;
+                    }
+                }
+            }
+        }
+
+        return view('front.details', compact('product', 'availableAttributes'));
     }
 
     public function category(Category $category)

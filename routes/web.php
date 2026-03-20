@@ -3,32 +3,42 @@
 use App\Http\Controllers\FrontController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\MyOrderController;
 use Illuminate\Support\Facades\Route;
 
-// --- PUBLIC ROUTES (Bisa liat-liat doang) ---
+// --- PUBLIC ROUTES ---
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
 Route::get('/browse/category/{slug}', [FrontController::class, 'category'])->name('front.category');
 Route::get('/details/{product:slug}', [FrontController::class, 'details'])->name('front.details');
 
-// --- PROTECTED ROUTES (Wajib Login/Daftar buat Checkout) ---
+// --- CART ROUTES (Disimpan di Session, tidak harus login dulu) ---
+Route::get('/cart', [CartController::class, 'index'])->name('front.cart');
+Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('front.cart.add');
+Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('front.cart.remove');
+
+// --- PROTECTED ROUTES (Wajib Login buat Checkout) ---
 Route::middleware('auth')->group(function () {
+    // 1. Checkout dari Keranjang
+    Route::post('/checkout/begin', [OrderController::class, 'beginCheckout'])->name('front.begin_checkout');
 
-    // 1. Mulai Order (Simpan pilihan ke session/service)
-    Route::post('/order/begin/{product:slug}', [OrderController::class, 'saveOrder'])->name('front.save_order');
-
-    // 2. Review Order (Halaman Booking)
-    Route::get('/order/booking', [OrderController::class, 'booking'])->name('front.booking');
+    // 2. Review Order
+    Route::get('/checkout/booking', [OrderController::class, 'booking'])->name('front.booking');
 
     // 3. Input Data Pelanggan
-    Route::get('/order/booking/customer-data', [OrderController::class, 'customerData'])->name('front.customer_data');
-    Route::post('/order/booking/customer-data/save', [OrderController::class, 'saveCustomerData'])->name('front.save_customer_data');
+    Route::get('/checkout/customer-data', [OrderController::class, 'customerData'])->name('order.customer_data');
+    Route::post('/checkout/customer-data/save', [OrderController::class, 'saveCustomerData'])->name('order.save_customer_data');
 
-    // 4. Pembayaran (Payment Gateway)
-    Route::post('/order/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('front.payment_confirm');
-    Route::get('/order/payment', [OrderController::class, 'payment'])->name('front.payment');
-    
+    // 4. Pembayaran
+    Route::get('/checkout/payment', [OrderController::class, 'payment'])->name('order.payment');
+
     // 5. Success Page
-    Route::get('/order/finished/{productTransaction:id}', [OrderController::class, 'orderFinished'])->name('front.order_finished');
+    Route::get('/checkout/finished/{id}', [OrderController::class, 'orderFinished'])->name('order.order_finished');
+
+    // 👇 TAMBAHKAN DUA RUTE INI UNTUK TRACKING PESANAN (MY ORDERS) 👇
+    // 6. My Orders (Riwayat Pesanan)
+    Route::get('/my-orders', [MyOrderController::class, 'index'])->name('order.my_orders');
+    Route::get('/my-orders/details/{productTransaction}', [MyOrderController::class, 'show'])->name('order.my_order_details');
 });
 
 // Auth Routes
@@ -37,3 +47,4 @@ Route::post('/login', [AuthController::class, 'authenticate']);
 Route::get('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/register', [AuthController::class, 'store']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+

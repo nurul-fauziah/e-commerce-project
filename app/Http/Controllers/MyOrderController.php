@@ -9,21 +9,22 @@ class MyOrderController extends Controller
 {
     public function index()
     {
-        // Ambil semua transaksi milik user yang login, urutkan dari yang terbaru
-        $orders = ProductTransaction::with('product')
+        $orders = ProductTransaction::with('transactionDetails.product')
                     ->where('user_id', Auth::id())
                     ->latest()
                     ->get();
 
-        return view('order.my_orders', compact('orders'));
+        return view('order.my_order', compact('orders'));
     }
 
     public function show(ProductTransaction $productTransaction)
     {
-        // Pastiin user cuma bisa liat punya dia sendiri
         if ($productTransaction->user_id !== Auth::id()) {
             abort(403);
         }
+
+        // Load relasi untuk detailnya
+        $productTransaction->load('transactionDetails.product');
 
         return view('order.my_order_details', compact('productTransaction'));
     }

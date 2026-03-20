@@ -44,7 +44,8 @@ class ProductResource extends Resource
                                     ->columnSpanFull(),
                             ])->columnSpan(2),
 
-                        Section::make('Pricing & Inventory')
+                        Section::make('Pricing & Inventory (Base)')
+                            ->description('Harga dan stok dasar jika produk tidak memiliki varian khusus.')
                             ->schema([
                                 Forms\Components\TextInput::make('price')
                                     ->required()
@@ -66,14 +67,12 @@ class ProductResource extends Resource
                 Section::make('Media & Categorization')
                     ->schema([
                         Grid::make(2)->schema([
-                            // Pake st_category_id sesuai fillable lo
                             Forms\Components\Select::make('st_category_id')
                                 ->relationship('category', 'name')
                                 ->searchable()
                                 ->preload()
                                 ->required(),
 
-                            // Pake st_brand_id sesuai fillable lo
                             Forms\Components\Select::make('st_brand_id')
                                 ->relationship('brand', 'name')
                                 ->searchable()
@@ -89,19 +88,45 @@ class ProductResource extends Resource
 
                 Section::make('Product Variants & Gallery')
                     ->schema([
+                        // REVISI UTAMA: Repeater untuk Varian Elektronik
                         Forms\Components\Repeater::make('variants')
-                            ->relationship('variants') // Ini nyari ke Model ProductVariant
+                            ->relationship('variants')
                             ->schema([
-                                Forms\Components\TextInput::make('variant_name')
-                                    ->placeholder('e.g. RAM, Storage')
+                                Grid::make(3)->schema([
+                                    Forms\Components\TextInput::make('sku')
+                                        ->label('SKU (Kode Barang)')
+                                        ->required()
+                                        // Validasi unik agar tidak ada SKU ganda di database
+                                        ->unique(ignoreRecord: true),
+
+                                    Forms\Components\TextInput::make('price')
+                                        ->label('Harga Varian')
+                                        ->numeric()
+                                        ->prefix('IDR')
+                                        ->required(),
+
+                                    Forms\Components\TextInput::make('stock')
+                                        ->label('Stok Varian')
+                                        ->numeric()
+                                        ->required(),
+                                ]),
+
+                                // Komponen KeyValue untuk atribut JSON (RAM, Storage, Warna, dll)
+                                Forms\Components\KeyValue::make('attributes')
+                                    ->label('Spesifikasi Teknis Varian')
+                                    ->keyLabel('Jenis Spesifikasi (cth: RAM)')
+                                    ->valueLabel('Nilai (cth: 16GB DDR5)')
+                                    ->addActionLabel('Tambah Spesifikasi')
+                                    ->reorderable()
                                     ->required(),
-                                Forms\Components\TextInput::make('variant_value')
-                                    ->placeholder('e.g. 16GB, 512GB SSD')
-                                    ->required(),
-                            ])->columns(2),
+                            ])
+                            ->itemLabel(fn (array $state): ?string => $state['sku'] ?? 'New Variant')
+                            ->collapsible()
+                            ->defaultItems(1) // Otomatis menampilkan 1 form kosong saat tambah baru
+                            ->columnSpanFull(),
 
                         Forms\Components\Repeater::make('photos')
-                            ->relationship('photos') // Ini nyari ke Model ProductPhoto
+                            ->relationship('photos')
                             ->schema([
                                 Forms\Components\FileUpload::make('photo')
                                     ->image()
