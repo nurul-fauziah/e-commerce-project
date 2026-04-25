@@ -5,7 +5,6 @@
 @section('content')
 <main class="st-page-wrap">
 
-    <!-- HERO -->
     <section class="st-hero p-6 md:p-10 mb-6">
         <span class="st-eyebrow st-eyebrow-blue">
             Secure Payment
@@ -16,13 +15,12 @@
         </h1>
 
         <p class="st-hero-text mt-4 max-w-2xl">
-            Transaksi sudah dibuat. Klik tombol bayar untuk membuka Midtrans dan pilih metode pembayaran.
+            Transaksi sudah dibuat. Klik tombol bayar untuk membuka Midtrans Sandbox dan pilih metode pembayaran.
         </p>
     </section>
 
     <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
 
-        <!-- PAYMENT MAIN -->
         <div class="st-card p-6 md:p-8">
             <div class="mb-6">
                 <h2 class="st-title text-2xl mb-2">
@@ -30,7 +28,7 @@
                 </h2>
 
                 <p class="st-muted text-sm">
-                    Mendukung QRIS, e-wallet, virtual account, dan metode pembayaran lain yang tersedia.
+                    Untuk lokal/demo, pembayaran berjalan lewat Sandbox. Setelah sukses atau pending, kamu akan diarahkan ke halaman status pesanan.
                 </p>
             </div>
 
@@ -50,7 +48,7 @@
                 <div class="st-card-soft p-4">
                     <div class="st-icon-green mb-3">VA</div>
                     <h3 class="st-subtitle text-sm">Virtual Account</h3>
-                    <p class="st-muted text-xs mt-1">Transfer bank lebih mudah dicek.</p>
+                    <p class="st-muted text-xs mt-1">Transfer bank via virtual account.</p>
                 </div>
             </div>
 
@@ -64,16 +62,15 @@
                 </p>
             </div>
 
-            <button id="pay-button" class="st-btn-accent w-full text-base md:text-lg">
+            <button type="button" id="pay-button" class="st-btn-accent w-full text-base md:text-lg">
                 Bayar Sekarang →
             </button>
 
             <p class="mt-4 text-center text-xs leading-5 text-slate-500">
-                Setelah pembayaran berhasil atau pending, sistem akan mengarahkan kamu ke halaman status pesanan.
+                Untuk demo lokal, halaman success akan tetap terbuka dari response popup Midtrans.
             </p>
         </div>
 
-        <!-- SUMMARY -->
         <aside class="lg:sticky lg:top-28 h-fit">
             <div class="st-card p-6">
                 <span class="st-eyebrow">
@@ -104,8 +101,8 @@
                     </div>
 
                     <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-800">
-                        <strong class="block">Pembayaran otomatis dicek</strong>
-                        Status pesanan akan berubah setelah gateway mengirim konfirmasi.
+                        <strong class="block">Mode Sandbox</strong>
+                        Aman untuk demo lokal. Tidak ada uang asli yang terpotong.
                     </div>
 
                     <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-800">
@@ -121,15 +118,30 @@
 @endsection
 
 @push('after-scripts')
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-    <script type="text/javascript">
-        const payButton = document.getElementById('pay-button');
-        const loadingGate = document.getElementById('loading-gate');
+    <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+            data-client-key="{{ config('midtrans.client_key') }}"></script>
 
-        if (payButton) {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const payButton = document.getElementById('pay-button');
+            const loadingGate = document.getElementById('loading-gate');
+
+            function resetButton() {
+                payButton?.classList.remove('hidden');
+                loadingGate?.classList.add('hidden');
+            }
+
+            if (!payButton) return;
+
             payButton.addEventListener('click', function () {
                 payButton.classList.add('hidden');
                 loadingGate.classList.remove('hidden');
+
+                if (!window.snap) {
+                    alert('Midtrans Snap gagal dimuat. Cek koneksi internet atau client key.');
+                    resetButton();
+                    return;
+                }
 
                 window.snap.pay('{{ $snapToken }}', {
                     onSuccess: function (result) {
@@ -139,17 +151,15 @@
                         window.location.href = "{{ route('order.order_finished', $transaction->id) }}";
                     },
                     onError: function (result) {
-                        alert("Payment failed!");
-                        payButton.classList.remove('hidden');
-                        loadingGate.classList.add('hidden');
+                        alert('Pembayaran gagal. Silakan coba lagi.');
+                        resetButton();
                     },
                     onClose: function () {
-                        alert('You closed the popup without finishing the payment');
-                        payButton.classList.remove('hidden');
-                        loadingGate.classList.add('hidden');
+                        alert('Popup pembayaran ditutup sebelum selesai.');
+                        resetButton();
                     }
                 });
             });
-        }
+        });
     </script>
 @endpush

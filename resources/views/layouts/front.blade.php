@@ -529,25 +529,22 @@
 
                 <!-- Cart -->
                 <a href="{{ route('front.cart') }}"
-                   class="relative inline-flex items-center justify-center gap-2 h-11 rounded-2xl bg-amber-400 px-3 md:px-4 text-slate-950 hover:bg-amber-300 hover:-translate-y-0.5 transition st-soft-shadow st-focus-ring"
-                   aria-label="Open cart">
+                class="relative inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-amber-400 text-slate-950 hover:bg-amber-300 hover:-translate-y-0.5 transition st-soft-shadow st-focus-ring"
+                aria-label="Open cart">
 
-                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M6.5 7.5H20L18.6 14.4C18.45 15.15 17.8 15.7 17.03 15.7H8.25C7.48 15.7 6.82 15.16 6.66 14.41L5.15 5.9H3.5"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"/>
-                        <circle cx="9" cy="19" r="1.35" fill="currentColor"/>
-                        <circle cx="17" cy="19" r="1.35" fill="currentColor"/>
+                    <svg class="w-[26px] h-[26px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M3 5H5L7.2 14.5C7.35 15.2 7.95 15.7 8.7 15.7H17.2C17.95 15.7 18.6 15.15 18.75 14.4L20 8H6"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+
+                        <circle cx="9" cy="19" r="1.6" fill="currentColor"/>
+                        <circle cx="17" cy="19" r="1.6" fill="currentColor"/>
                     </svg>
 
-                    <span class="hidden md:inline text-sm font-black">
-                        Cart
-                    </span>
-
                     @if(session('cart') && count(session('cart')) > 0)
-                        <span class="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
+                        <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
                             {{ min(count(session('cart')), 99) }}{{ count(session('cart')) > 99 ? '+' : '' }}
                         </span>
                     @endif
