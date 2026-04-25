@@ -1,58 +1,156 @@
 @extends('layouts.front')
 
-@section('title', 'My Orders - SmartTech')
+@section('title', 'Pesanan Saya - SmartTech')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-16">
-    <div class="mb-12">
-        <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none">My <br> <span class="bg-black text-white px-2">Orders_Log</span></h1>
-        <p class="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40 mt-4">Database_Access: Authorized_User_{{ Auth::user()->name }}</p>
-    </div>
+<main class="st-page-wrap">
 
-    <div class="grid grid-cols-1 gap-8">
+    <!-- HERO -->
+    <section class="st-hero p-6 md:p-10 mb-6">
+        <span class="st-eyebrow st-eyebrow-blue">
+            Order Center
+        </span>
+
+        <h1 class="st-hero-title text-3xl md:text-5xl mt-4">
+            Pesanan Saya
+        </h1>
+
+        <p class="st-hero-text mt-4 max-w-2xl">
+            Pantau status pembayaran, cek detail produk, dan lihat riwayat transaksi SmartTech kamu.
+        </p>
+    </section>
+
+    <!-- INFO BAR -->
+    <section class="grid gap-3 md:grid-cols-3 mb-6">
+        <div class="st-card-soft p-5">
+            <div class="st-icon-blue mb-3">✓</div>
+            <h3 class="st-subtitle">Status Jelas</h3>
+            <p class="st-muted text-sm mt-1">
+                Cek pembayaran dan verifikasi pesanan.
+            </p>
+        </div>
+
+        <div class="st-card-soft p-5">
+            <div class="st-icon-green mb-3">✓</div>
+            <h3 class="st-subtitle">Produk Original</h3>
+            <p class="st-muted text-sm mt-1">
+                Pesanan diproses sesuai stok toko.
+            </p>
+        </div>
+
+        <div class="st-card-soft p-5">
+            <div class="st-icon-orange mb-3">?</div>
+            <h3 class="st-subtitle">Butuh Bantuan?</h3>
+            <p class="st-muted text-sm mt-1">
+                Simpan nomor order untuk konfirmasi.
+            </p>
+        </div>
+    </section>
+
+    <!-- ORDER LIST -->
+    <section class="grid gap-5">
         @forelse($orders as $order)
             @php
                 $firstItem = $order->transactionDetails->first();
                 $additionalItemsCount = $order->transactionDetails->count() - 1;
+                $isPaid = $order->is_paid;
             @endphp
 
-            <div class="bg-white border-4 border-black p-6 md:p-8 shadow-[10px_10px_0px_0px_#000] flex flex-col md:flex-row justify-between items-center gap-8">
-                <div class="flex items-center gap-6 w-full md:w-auto">
-                    <div class="w-24 h-24 border-2 border-black bg-[#F5F5F0] overflow-hidden flex-shrink-0">
-                        @if($firstItem && $firstItem->product)
-                            <img src="{{ Storage::url($firstItem->product->thumbnail) }}" class="w-full h-full object-cover grayscale" alt="">
-                        @endif
+            <article class="st-card p-5 md:p-6 transition hover:-translate-y-0.5 hover:shadow-xl">
+                <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+
+                    <!-- Product Summary -->
+                    <div class="flex min-w-0 flex-1 items-center gap-5">
+                        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 md:h-28 md:w-28">
+                            @if($firstItem && $firstItem->product)
+                                <img src="{{ Storage::url($firstItem->product->thumbnail) }}"
+                                     class="h-full w-full object-cover"
+                                     alt="{{ $firstItem->product->name }}">
+                            @else
+                                <div class="flex h-full w-full items-center justify-center text-3xl text-slate-300">
+                                    📦
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="min-w-0">
+                            <div class="mb-2 flex flex-wrap items-center gap-2">
+                                <span class="rounded-full bg-slate-950 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+                                    #{{ $order->booking_trx_id }}
+                                </span>
+
+                                <span class="rounded-full {{ $isPaid ? 'bg-emerald-50 text-emerald-700 ring-emerald-100' : 'bg-amber-50 text-amber-700 ring-amber-100' }} px-3 py-1 text-[11px] font-bold uppercase tracking-wide ring-1">
+                                    {{ $isPaid ? 'Paid / Verified' : 'Pending Payment' }}
+                                </span>
+                            </div>
+
+                            <h2 class="truncate text-xl font-black tracking-tight text-slate-950 md:text-2xl">
+                                {{ $firstItem && $firstItem->product ? $firstItem->product->name : 'SmartTech Product' }}
+                            </h2>
+
+                            <div class="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+                                <span>
+                                    Ordered at {{ $order->created_at->format('d M Y') }}
+                                </span>
+
+                                @if($additionalItemsCount > 0)
+                                    <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-100">
+                                        + {{ $additionalItemsCount }} item lainnya
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <span class="bg-black text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest mb-2 inline-block">#{{ $order->booking_trx_id }}</span>
-                        <h2 class="text-2xl font-black italic uppercase leading-none mb-1">
-                            {{ $firstItem ? $firstItem->product->name : 'Hardware Modules' }}
-                        </h2>
-                        @if($additionalItemsCount > 0)
-                            <p class="text-xs font-bold text-[#C5F277] bg-black px-2 py-1 inline-block mb-2">+ {{ $additionalItemsCount }} Other Module(s)</p>
-                        @endif
-                        <p class="font-bold text-sm opacity-50 uppercase mt-1">Ordered_At: {{ $order->created_at->format('d M Y') }}</p>
+
+                    <!-- Price & Action -->
+                    <div class="flex flex-col gap-4 border-t border-dashed border-slate-200 pt-5 md:min-w-[260px] md:items-end md:border-t-0 md:pt-0">
+
+                        <div class="w-full rounded-2xl bg-slate-50 p-4 text-left ring-1 ring-slate-100 md:text-right">
+                            <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
+                                Grand Total
+                            </p>
+                            <p class="mt-1 text-2xl font-black text-slate-950">
+                                Rp {{ number_format($order->grand_total_amount, 0, ',', '.') }}
+                            </p>
+                        </div>
+
+                        <div class="flex w-full flex-col gap-2 sm:flex-row md:flex-col">
+                            <a href="{{ route('order.my_order_details', $order->id) }}"
+                               class="st-btn-primary w-full">
+                                Lihat Detail
+                            </a>
+
+                            @if(!$isPaid)
+                                <a href="{{ route('front.contact') }}"
+                                   class="st-btn-ghost w-full">
+                                    Butuh Bantuan?
+                                </a>
+                            @endif
+                        </div>
                     </div>
+
                 </div>
-
-                <div class="flex flex-col md:items-end gap-4 w-full md:w-auto">
-                    <span class="bg-black text-white border-2 border-black px-4 py-1 font-black italic uppercase text-xs shadow-[4px_4px_0px_0px_#C5F277]">
-                        Status: {{ $order->is_paid ? 'PAID / VERIFIED' : 'PENDING PAYMENT' }}
-                    </span>
-
-                    <p class="font-black text-2xl italic">Rp {{ number_format($order->grand_total_amount, 0, ',', '.') }}</p>
-
-                    <a href="{{ route('order.my_order_details', $order->id) }}" class="bg-white text-black px-6 py-2 font-black italic uppercase text-xs hover:bg-[#C5F277] transition-all border-2 border-black text-center">
-                        View_Details
-                    </a>
-                </div>
-            </div>
+            </article>
         @empty
-            <div class="bg-[#F5F5F0] border-4 border-black border-dashed p-20 text-center">
-                <p class="font-black italic uppercase text-3xl opacity-20">No_Transactions_Found</p>
-                <a href="{{ route('front.index') }}" class="mt-6 inline-block bg-black text-white px-6 py-3 font-black italic uppercase hover:bg-[#C5F277] hover:text-black border-2 border-black">Start_Shopping_Now</a>
+            <div class="st-card p-8 md:p-14 text-center">
+                <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-4xl ring-1 ring-blue-100">
+                    🛒
+                </div>
+
+                <h2 class="st-title text-3xl">
+                    Belum Ada Pesanan
+                </h2>
+
+                <p class="st-muted mx-auto mt-3 max-w-md text-sm leading-6">
+                    Pesanan kamu nanti muncul di sini setelah checkout. Yuk lihat produk SmartTech yang ready stock.
+                </p>
+
+                <a href="{{ route('front.catalog') }}" class="st-btn-accent mt-6">
+                    Mulai Belanja
+                </a>
             </div>
         @endforelse
-    </div>
-</div>
+    </section>
+
+</main>
 @endsection

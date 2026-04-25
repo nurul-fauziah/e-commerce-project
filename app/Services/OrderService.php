@@ -29,22 +29,32 @@ class OrderService
         $this->promoCodeRepository = $promoCodeRepository;
     }
 
-    public function beginCheckout()
+public function beginCheckout()
     {
         $cart = session()->get('cart', []);
-        if (empty($cart)) return false;
+        $selectedKeys = session()->get('selected_cart_keys', []); // Ambil item yang diceklis
+
+        if (empty($cart) || empty($selectedKeys)) return false;
 
         $subTotalAmount = 0;
-        foreach ($cart as $item) {
-            $subTotalAmount += $item['subtotal'];
+        $checkoutItems = [];
+
+        // HANYA hitung item yang ada di dalam selectedKeys
+        foreach ($selectedKeys as $key) {
+            if (isset($cart[$key])) {
+                $checkoutItems[$key] = $cart[$key];
+                $subTotalAmount += $cart[$key]['subtotal'];
+            }
         }
+
+        if (empty($checkoutItems)) return false;
 
         $taxRate = 0.11; // PPN 11%
         $totalTax = $subTotalAmount * $taxRate;
         $grandTotalAmount = $subTotalAmount + $totalTax;
 
         $checkoutData = [
-            'cart_items' => $cart,
+            'cart_items' => $checkoutItems, // Hanya barang yang di-checkout
             'sub_total_amount' => $subTotalAmount,
             'total_tax' => $totalTax,
             'grand_total_amount' => $grandTotalAmount,
@@ -65,8 +75,7 @@ class OrderService
     {
         $this->orderRepository->updateSessionData($data);
     }
-
-    public function finalizeOrder()
+public function finalizeOrder()
     {
         $details = $this->getOrderDetails();
         $orderData = $details['orderData'];
@@ -76,7 +85,7 @@ class OrderService
 
         try {
             DB::transaction(function () use (&$productTransactionId, $orderData) {
-                // 1. Simpan Header Transaksi
+                // ... (Logika simpan ProductTransaction dan TransactionDetail SAMA PERSIS dengan sebelumnya)
                 $transaction = ProductTransaction::create([
                     'user_id'            => Auth::id(),
                     'name'               => Auth::user()->name,
@@ -93,7 +102,6 @@ class OrderService
                     'is_paid'            => false,
                 ]);
 
-                // 2. Simpan Detail Transaksi
                 foreach ($orderData['cart_items'] as $item) {
                     TransactionDetail::create([
                         'st_product_transaction_id' => $transaction->id,
@@ -106,7 +114,16 @@ class OrderService
                 }
 
                 $productTransactionId = $transaction->id;
-                session()->forget('cart');
+
+                // PERBAIKAN: Jangan hapus seluruh session('cart'). Hapus HANYA barang yang berhasil dibeli.
+                $fullCart = session()->get('cart', []);
+                $purchasedKeys = array_keys($orderData['cart_items']);
+
+                foreach ($purchasedKeys as $key) {
+                    unset($fullCart[$key]);
+                }
+                session()->put('cart', $fullCart);
+                session()->forget('selected_cart_keys'); // Bersihkan memori pilihan checkout
             });
 
             return $productTransactionId;
