@@ -1,22 +1,34 @@
 @extends('layouts.front')
 
-@section('title', 'Shipping Details - SmartTech')
+@section('title', 'Data Pengiriman - SmartTech')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 py-16">
-    <div class="flex flex-col lg:flex-row gap-12 items-start">
+<main class="st-page-wrap">
 
-        <!-- Form Kiri -->
-        <div class="flex-1 bg-white border-8 border-black p-6 md:p-10 shadow-[15px_15px_0px_0px_#000]">
-            <div class="mb-10">
-                <h1 class="text-5xl font-black italic uppercase tracking-tighter leading-none">Shipping <br> <span class="bg-black text-white px-2">Details</span></h1>
-                <p class="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40 mt-4">Step_02: Customer_Information_Input</p>
-            </div>
+    <section class="st-hero p-6 md:p-10 mb-6">
+        <span class="st-eyebrow st-eyebrow-blue">Shipping Details</span>
+
+        <h1 class="st-hero-title text-3xl md:text-5xl mt-4">
+            Data Pengiriman
+        </h1>
+
+        <p class="st-hero-text mt-4 max-w-2xl">
+            Lengkapi alamat dan kontak penerima supaya pesanan bisa diproses dengan benar.
+        </p>
+    </section>
+
+    <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
+
+        <div class="st-card p-6 md:p-8">
+            <h2 class="st-title text-2xl mb-2">Alamat Penerima</h2>
+            <p class="st-muted text-sm mb-6">
+                Nama dan email otomatis mengikuti akun login kamu.
+            </p>
 
             @if($errors->any())
-                <div class="bg-red-500 text-white border-4 border-black p-4 mb-8 font-black uppercase text-xs shadow-[4px_4px_0px_0px_#000] italic">
-                    <p class="mb-2">! System_Error_Detected:</p>
-                    <ul class="list-disc pl-5">
+                <div class="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+                    <strong class="block mb-2">Ada data yang perlu diperbaiki:</strong>
+                    <ul class="list-disc pl-5 space-y-1">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -24,89 +36,146 @@
                 </div>
             @endif
 
-            <form action="{{ route('order.save_customer_data') }}" method="POST" class="flex flex-col gap-6">
+            <form action="{{ route('order.save_customer_data') }}" method="POST" class="space-y-5">
                 @csrf
 
-                <!-- Nama & Email (Otomatis dari Auth) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="font-black uppercase text-xs tracking-widest">Receiver_Name</label>
-                        <input type="text" name="name" value="{{ Auth::user()->name }}" readonly class="border-4 border-black p-4 font-bold bg-gray-200 outline-none">
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Receiver Name
+                        </label>
+                        <input type="text" name="name" value="{{ Auth::user()->name }}" readonly
+                               class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 font-semibold text-slate-600 outline-none cursor-not-allowed">
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-black uppercase text-xs tracking-widest">Email_Address</label>
-                        <input type="email" name="email" value="{{ Auth::user()->email }}" readonly class="border-4 border-black p-4 font-bold bg-gray-200 outline-none">
+
+                    <div>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Email Address
+                        </label>
+                        <input type="email" name="email" value="{{ Auth::user()->email }}" readonly
+                               class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 font-semibold text-slate-600 outline-none cursor-not-allowed">
                     </div>
                 </div>
 
-                <!-- Phone -->
-                <div class="flex flex-col gap-2">
-                    <label class="font-black uppercase text-xs tracking-widest">Contact_Number</label>
+                <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+                    <strong class="block">Info akun</strong>
+                    Nama dan email dikunci dari akun login. Data di bawah dipakai untuk pengiriman.
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Contact Number
+                    </label>
                     <input type="text" name="phone" value="{{ old('phone') }}" required
-                           class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none"
-                           placeholder="e.g. 08123456789">
+                           class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                           placeholder="Contoh: 08123456789">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="font-black uppercase text-xs tracking-widest">Delivery_City</label>
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Delivery City
+                        </label>
                         <input type="text" name="city" value="{{ old('city') }}" required
-                               class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none"
+                               class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                placeholder="Jakarta">
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="font-black uppercase text-xs tracking-widest">Post_Code</label>
+
+                    <div>
+                        <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                            Post Code
+                        </label>
                         <input type="text" name="post_code" value="{{ old('post_code') }}" required
-                               class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none"
+                               class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                                placeholder="12345">
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="font-black uppercase text-xs tracking-widest">Full_Address</label>
-                    <textarea name="address" rows="4" required
-                              class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none"
-                              placeholder="Street name, Building number, etc.">{{ old('address') }}</textarea>
+                <div>
+                    <label class="text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Full Address
+                    </label>
+                    <textarea name="address" rows="5" required
+                              class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 font-semibold text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                              placeholder="Nama jalan, nomor rumah, RT/RW, patokan, kecamatan, dll.">{{ old('address') }}</textarea>
+                    <p class="mt-2 text-xs text-slate-500">
+                        Tambahkan patokan alamat supaya kurir lebih mudah menemukan lokasi.
+                    </p>
                 </div>
 
-                <button type="submit" class="bg-black text-white py-6 font-black italic uppercase text-2xl shadow-[8px_8px_0px_0px_#C5F277] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all mt-6 border-2 border-black">
-                    Proceed_To_Payment
+                <button type="submit" class="st-btn-accent w-full">
+                    Proceed to Payment
                 </button>
             </form>
         </div>
 
-        <!-- Ringkasan Kanan (MULTI-ITEM) -->
-        <div class="w-full lg:w-1/3">
-            <div class="bg-[#C5F277] border-4 border-black p-8 sticky top-32 shadow-[10px_10px_0px_0px_#000]">
-                <h2 class="text-2xl font-black italic uppercase mb-6 border-b-2 border-black pb-2">Order_Summary</h2>
+        <aside class="lg:sticky lg:top-28 h-fit">
+            <div class="st-card p-6">
+                <h3 class="st-title text-xl mb-2">Ringkasan Pesanan</h3>
+                <p class="st-muted text-sm mb-5">
+                    Cek lagi item sebelum lanjut ke pembayaran.
+                </p>
 
-                <div class="flex flex-col gap-4 mb-6 max-h-64 overflow-y-auto pr-2">
+                <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
                     @foreach($orderData['cart_items'] as $item)
-                    <div class="flex gap-4 bg-white border-2 border-black p-2">
-                        <div class="w-16 h-16 border-2 border-black bg-[#E4E3E0] overflow-hidden shrink-0">
-                            <img src="{{ is_string($item['thumbnail']) && str_starts_with($item['thumbnail'], 'http') ? $item['thumbnail'] : Storage::url($item['thumbnail']) }}" class="w-full h-full object-cover grayscale" alt="Thumb">
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-black italic uppercase leading-none text-xs truncate">{{ $item['name'] }}</p>
-                            <p class="text-[9px] font-bold opacity-50 uppercase mt-1 line-clamp-1">{{ $item['variant_details'] }}</p>
-                            <div class="flex justify-between items-center mt-2">
-                                <p class="text-[10px] font-bold">x{{ $item['quantity'] }}</p>
-                                <p class="font-black text-sm">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</p>
+                        <div class="flex gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                            <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                                <img src="{{ is_string($item['thumbnail']) && str_starts_with($item['thumbnail'], 'http') ? $item['thumbnail'] : Storage::url($item['thumbnail']) }}"
+                                     class="h-full w-full object-cover"
+                                     alt="{{ $item['name'] }}">
+                            </div>
+
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-bold text-slate-950">
+                                    {{ $item['name'] }}
+                                </p>
+                                <p class="mt-1 line-clamp-1 text-xs text-slate-500">
+                                    {{ $item['variant_details'] }}
+                                </p>
+                                <div class="mt-2 flex items-center justify-between gap-2">
+                                    <span class="rounded-full bg-white px-2 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200">
+                                        x{{ $item['quantity'] }}
+                                    </span>
+                                    <span class="text-sm font-black text-slate-950">
+                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     @endforeach
                 </div>
 
-                <div class="border-t-4 border-black border-dashed pt-4 flex flex-col gap-2">
-                    <div class="flex justify-between items-end mt-2">
-                        <span class="font-black text-lg uppercase">Total</span>
-                        <span class="font-black italic text-2xl">Rp {{ number_format($orderData['grand_total_amount'], 0, ',', '.') }}</span>
+                <div class="my-5 border-t border-dashed border-slate-200"></div>
+
+                <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+                    <div class="flex justify-between text-sm text-blue-800">
+                        <span>Total item</span>
+                        <span class="font-bold">{{ count($orderData['cart_items']) }} item</span>
+                    </div>
+
+                    <div class="mt-3 flex items-end justify-between gap-4">
+                        <span class="text-sm font-bold text-blue-800">Total Payment</span>
+                        <span class="text-2xl font-black text-slate-950">
+                            Rp {{ number_format($orderData['grand_total_amount'], 0, ',', '.') }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+                    <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-3 text-emerald-800">
+                        <p class="font-bold">Secure Checkout</p>
+                        <p class="mt-1 text-emerald-700/70">Data diproses aman.</p>
+                    </div>
+
+                    <div class="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-amber-800">
+                        <p class="font-bold">Fast Process</p>
+                        <p class="mt-1 text-amber-700/70">Pesanan cepat masuk.</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
 
-    </div>
-</div>
+    </section>
+
+</main>
 @endsection

@@ -19,10 +19,18 @@ class OrderController extends Controller
 
     public function beginCheckout(Request $request)
     {
+        $request->validate([
+            'cart_keys' => 'required|array|min:1',
+        ]);
+
+        session()->put('selected_cart_keys', $request->cart_keys);
+
         $success = $this->orderService->beginCheckout();
 
         if (!$success) {
-            return redirect()->route('front.cart')->withErrors(['error' => 'Keranjang kosong. Tidak dapat melakukan checkout.']);
+            return redirect()
+                ->route('front.cart')
+                ->withErrors(['error' => 'Gagal memproses pilihan keranjang.']);
         }
 
         return redirect()->route('front.booking');
@@ -53,47 +61,60 @@ class OrderController extends Controller
     public function saveCustomerData(StoreCustomerDataRequest $request)
     {
         $validated = $request->validated();
+
         $this->orderService->updateCustomerData($validated);
 
         $transactionId = $this->orderService->finalizeOrder();
 
-        if ($transactionId) {
-            session()->put('transaction_id', $transactionId);
-            // PERBAIKAN: Memaksa penyimpanan session sebelum redirect
-            session()->save();
-
-            return redirect()->route('order.payment');
+        if (!$transactionId) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => 'Gagal membuat ID Transaksi.']);
         }
 
-        return redirect()->back()->withErrors(['error' => 'Gagal membuat ID Transaksi.']);
+        session()->put('transaction_id', $transactionId);
+        session()->save();
+
+        return redirect()->route('order.payment');
     }
 
     public function payment()
     {
         $id = session()->get('transaction_id');
 
-        // CEK 1: Apakah Session berhasil tersimpan?
         if (!$id) {
-            dd('ERROR CEK 1: Session transaction_id KOSONG! Artinya proses saveCustomerData gagal menyimpan session.');
+            return redirect()
+                ->route('front.cart')
+                ->withErrors(['error' => 'Sesi pembayaran tidak ditemukan. Silakan checkout ulang.']);
         }
 
         $transaction = ProductTransaction::findOrFail($id);
 
         try {
             $snapToken = $this->orderService->getSnapToken($id);
+
             return view('order.payment', compact('transaction', 'snapToken'));
         } catch (\Exception $e) {
-            // CEK 2: Apakah Midtrans menolak data kita?
-            dd('ERROR CEK 2 (MIDTRANS MENOLAK): ' . $e->getMessage());
+            Log::error('Midtrans Snap Token Error: ' . $e->getMessage());
+
+            return redirect()
+                ->route('front.cart')
+                ->withErrors(['error' => 'Gagal menghubungkan pembayaran. Silakan coba lagi.']);
         }
     }
 
-    // Step 6: Halaman Sukses
     public function orderFinished($id)
     {
-        // Panggil transaksi beserta detail dan produknya
-        $productTransaction = ProductTransaction::with('transactionDetails.product')->findOrFail($id);
+        $transaction = ProductTransaction::with('transactionDetails.product')
+            ->findOrFail($id);
 
-        return view('order.order_finished', compact('productTransaction'));
+        if (!$transaction->is_paid) {
+            $transaction->update([
+                'status' => 'paid',
+                'is_paid' => true,
+            ]);
+        }
+
+        return view('order.order_finished', compact('transaction'));
     }
 }

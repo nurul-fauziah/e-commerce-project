@@ -1,68 +1,136 @@
 @extends('layouts.front')
 
-@section('title', 'Order Successful - SmartTech')
+@section('title', 'Status Pesanan - SmartTech')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 py-24 text-center">
-    <div class="bg-white border-8 border-black p-10 md:p-20 shadow-[20px_20px_0px_0px_#C5F277]">
+<main class="st-page-wrap">
 
-        <!-- Icon Sukses -->
-        <div class="w-24 h-24 bg-black text-[#C5F277] flex items-center justify-center rounded-full mx-auto mb-10 border-4 border-black shadow-[8px_8px_0px_0px_#000]">
-            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
-            </svg>
+    <!-- HERO STATUS -->
+    <section class="st-hero p-6 md:p-10 mb-6 text-center">
+
+        <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+            ⏳
         </div>
 
-        <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-none mb-6">Transaction <br> <span class="bg-black text-white px-2">Successful</span></h1>
+        <span class="st-eyebrow st-eyebrow-blue">
+            Order Status
+        </span>
 
-        <p class="text-xl font-bold uppercase opacity-60 mb-12 tracking-widest italic">
-            "Identity verified. Payment authorized. Your hardware is being prepared for deployment."
+        <h1 class="st-hero-title mt-4 text-3xl md:text-5xl">
+            Pesanan Sedang Diproses
+        </h1>
+
+        <p class="st-hero-text mx-auto mt-4 max-w-2xl text-sm md:text-base">
+            Pembayaran kamu sedang diverifikasi oleh sistem. Status akan otomatis diperbarui.
         </p>
 
-        <!-- Detail Transaksi -->
-        <div class="bg-[#F5F5F0] border-4 border-black p-8 text-left mb-12">
-            <div class="flex justify-between border-b-2 border-black border-dashed py-3">
-                <span class="font-black uppercase text-xs opacity-50">Order_ID</span>
-                <span class="font-black italic text-lg">#{{ $productTransaction->booking_trx_id }}</span>
-            </div>
+    </section>
 
-            <div class="flex justify-between border-b-2 border-black border-dashed py-3 items-center">
-                <span class="font-black uppercase text-xs opacity-50">Hardware_Unit</span>
+    <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
 
-                <!-- LOGIKA MULTI-ITEM -->
-                @php
-                    $firstDetail = $productTransaction->transactionDetails->first();
-                    $extraCount = $productTransaction->transactionDetails->count() - 1;
-                @endphp
+        <!-- LEFT -->
+        <div class="space-y-6">
 
-                <div class="text-right">
-                    <span class="font-black italic text-lg uppercase block leading-none">
-                        {{ $firstDetail ? $firstDetail->product->name : 'Hardware Modules' }}
-                    </span>
-                    @if($extraCount > 0)
-                        <span class="text-[10px] font-bold bg-black text-[#C5F277] px-2 py-1 mt-1 inline-block">
-                            + {{ $extraCount }} Other Module(s)
+            <!-- ORDER INFO -->
+            <div class="st-card p-6 md:p-8">
+
+                <h2 class="st-title text-2xl mb-5">
+                    Informasi Pesanan
+                </h2>
+
+                <div class="space-y-4 text-sm">
+
+                    <div class="flex justify-between">
+                        <span class="st-muted">Transaction ID</span>
+                        <span class="font-bold text-slate-900">
+                            #{{ $transaction->booking_trx_id }}
                         </span>
-                    @endif
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span class="st-muted">Status</span>
+                        <span class="font-semibold text-blue-600">
+                            {{ ucfirst($transaction->payment_status ?? 'Pending') }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span class="st-muted">Total</span>
+                        <span class="text-lg font-black text-slate-950">
+                            Rp {{ number_format($transaction->grand_total_amount, 0, ',', '.') }}
+                        </span>
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="flex justify-between py-3 items-end mt-2">
-                <span class="font-black uppercase text-xs opacity-50">Total_Paid</span>
-                <span class="font-black italic text-3xl">Rp {{ number_format($productTransaction->grand_total_amount, 0, ',', '.') }}</span>
+            <!-- STATUS INFO -->
+            <div class="grid md:grid-cols-3 gap-4">
+
+                <div class="st-card-soft p-5 text-center">
+                    <div class="st-icon-blue mb-3 mx-auto">1</div>
+                    <h3 class="st-subtitle">Verifikasi</h3>
+                    <p class="st-muted text-xs mt-1">
+                        Pembayaran dicek sistem
+                    </p>
+                </div>
+
+                <div class="st-card-soft p-5 text-center">
+                    <div class="st-icon-orange mb-3 mx-auto">2</div>
+                    <h3 class="st-subtitle">Diproses</h3>
+                    <p class="st-muted text-xs mt-1">
+                        Pesanan disiapkan
+                    </p>
+                </div>
+
+                <div class="st-card-soft p-5 text-center">
+                    <div class="st-icon-green mb-3 mx-auto">3</div>
+                    <h3 class="st-subtitle">Dikirim</h3>
+                    <p class="st-muted text-xs mt-1">
+                        Barang dikirim ke kamu
+                    </p>
+                </div>
+
             </div>
+
         </div>
 
-        <div class="flex flex-col md:flex-row gap-6">
-            <a href="{{ route('front.index') }}" class="flex-1 bg-black text-white py-6 font-black italic uppercase text-xl border-2 border-black shadow-[8px_8px_0px_0px_#C5F277] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-                Return_To_Base
-            </a>
-            <a href="{{ route('order.my_orders') }}" class="flex-1 border-4 border-black py-6 font-black italic uppercase text-xl hover:bg-[#C5F277] transition-all shadow-[8px_8px_0px_0px_#000] active:shadow-none">
-                Track_Deployment
-            </a>
-        </div>
+        <!-- RIGHT -->
+        <aside class="lg:sticky lg:top-28 h-fit">
 
-        <p class="mt-12 text-[10px] font-bold opacity-30 uppercase tracking-[0.5em]">SmartTech_Logistics_Protocol_v4.0</p>
-    </div>
-</div>
+            <div class="st-card p-6">
+
+                <h3 class="st-title text-xl mb-4">
+                    Aksi Selanjutnya
+                </h3>
+
+                <div class="grid gap-3">
+
+                    <a href="{{ route('order.my_orders') }}"
+                       class="st-btn-primary w-full">
+                        Lihat Pesanan
+                    </a>
+
+                    <a href="{{ route('front.catalog') }}"
+                       class="st-btn-ghost w-full">
+                        Lanjut Belanja
+                    </a>
+
+                </div>
+
+                <div class="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+                    <strong>Status otomatis</strong>
+                    <p class="mt-1 text-xs">
+                        Status akan berubah otomatis setelah pembayaran dikonfirmasi.
+                    </p>
+                </div>
+
+            </div>
+
+        </aside>
+
+    </section>
+
+</main>
 @endsection

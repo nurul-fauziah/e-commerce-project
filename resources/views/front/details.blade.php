@@ -3,102 +3,364 @@
 @section('title', $product->name . ' - SmartTech')
 
 @section('content')
-<main class="max-w-7xl mx-auto px-4 py-12 md:py-16">
-    <!-- Mengarah ke route Cart yang baru -->
+<main class="st-page-wrap">
+
     <form action="{{ route('front.cart.add', $product->id) }}" method="POST">
         @csrf
-        <!-- Hidden input yang akan diisi oleh Javascript -->
+
         <input type="hidden" name="variant_id" id="selected_variant_id" required>
-        <!-- Kita simpan juga string detailnya untuk keperluan history pesanan nanti -->
         <input type="hidden" name="variant_details" id="selected_variant_details" value="">
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-            <!-- KIRI: Gambar -->
-            <div class="lg:sticky lg:top-32">
-                <div class="bg-white border-4 border-black p-4 shadow-[20px_20px_0px_0px_#000]">
-                    <div class="aspect-square bg-[#E4E3E0] border-2 border-black overflow-hidden relative group">
-                        <img src="{{ Storage::url($product->thumbnail) }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="{{ $product->name }}">
+        <!-- Breadcrumb -->
+        <div class="mb-6 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+            <a href="{{ route('front.index') }}" class="hover:text-blue-600 transition st-focus-ring">Home</a>
+            <span>/</span>
+            <a href="{{ route('front.category', $product->category->slug ?? $product->category->id) }}" class="hover:text-blue-600 transition st-focus-ring">
+                {{ $product->category->name }}
+            </a>
+            <span>/</span>
+            <span class="text-slate-700">{{ Str::limit($product->name, 28) }}</span>
+        </div>
+
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-start">
+
+            <!-- LEFT: PRODUCT IMAGE -->
+            <div class="lg:sticky lg:top-28 space-y-4">
+
+                <div class="st-card overflow-hidden">
+                    <div class="p-4 md:p-5">
+                        <div class="mb-4 flex items-center justify-between gap-3">
+                            <span class="st-eyebrow st-eyebrow-blue">
+                                Original Gadget
+                            </span>
+
+                            <span class="inline-flex rounded-full {{ $product->stock > 0 ? 'bg-emerald-50 text-emerald-700 ring-emerald-100' : 'bg-rose-50 text-rose-700 ring-rose-100' }} px-3 py-1 text-xs font-bold ring-1">
+                                {{ $product->stock > 0 ? 'Ready Stock' : 'Sold Out' }}
+                            </span>
+                        </div>
+
+                        <div class="group aspect-square overflow-hidden rounded-3xl border border-slate-200 bg-slate-100">
+                            <img src="{{ is_string($product->thumbnail) && str_starts_with($product->thumbnail, 'http') ? $product->thumbnail : Storage::url($product->thumbnail) }}"
+                                 class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                                 alt="{{ $product->name }}">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Gallery Tambahan (Opsional, jika ada) -->
                 @if($product->photos->count() > 0)
-                <div class="grid grid-cols-4 gap-4 mt-4">
-                    @foreach($product->photos as $photo)
-                    <div class="aspect-square bg-white border-2 border-black overflow-hidden cursor-pointer hover:border-[#C5F277]">
-                        <img src="{{ Storage::url($photo->photo) }}" class="w-full h-full object-cover grayscale hover:grayscale-0" alt="Gallery">
+                    <div class="grid grid-cols-4 gap-3">
+                        @foreach($product->photos as $photo)
+                            <button type="button"
+                                    class="group aspect-square overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 transition hover:border-blue-300 hover:shadow-md st-focus-ring">
+                                <img src="{{ Storage::url($photo->photo) }}"
+                                     class="h-full w-full rounded-xl object-cover opacity-80 transition group-hover:scale-105 group-hover:opacity-100"
+                                     alt="{{ $product->name }} gallery">
+                            </button>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
                 @endif
+
+                <div class="grid grid-cols-3 gap-3 text-xs">
+                    <div class="st-card-soft p-4">
+                        <p class="font-bold text-slate-950">Original</p>
+                        <p class="mt-1 st-muted">Produk pilihan</p>
+                    </div>
+
+                    <div class="st-card-soft p-4">
+                        <p class="font-bold text-slate-950">Garansi</p>
+                        <p class="mt-1 st-muted">After-sales</p>
+                    </div>
+
+                    <div class="st-card-soft p-4">
+                        <p class="font-bold text-slate-950">Aman</p>
+                        <p class="mt-1 st-muted">Checkout jelas</p>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- KANAN: Info & Form -->
-            <div class="flex flex-col gap-10">
-                <div>
-                    <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.85] mb-2">{{ $product->name }}</h1>
-                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-40">// {{ $product->category->name }}</p>
-                </div>
+            <!-- RIGHT: PRODUCT INFO -->
+            <div class="space-y-6">
 
-                <div class="bg-[#C5F277] border-4 border-black p-8 shadow-[10px_10px_0px_0px_#000]">
-                    <p class="text-[10px] font-bold uppercase tracking-widest mb-2">Selected_Configuration_Price</p>
-                    <!-- Harga ini akan berubah lewat JS -->
-                    <p id="dynamic-price" class="text-5xl md:text-6xl font-black italic tracking-tighter">
-                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                <!-- Product Title -->
+                <section class="st-hero p-6 md:p-8">
+                    <div class="mb-4 flex flex-wrap items-center gap-2">
+                        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-blue-700 ring-1 ring-blue-100">
+                            {{ $product->category->name }}
+                        </span>
+
+                        <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-700 ring-1 ring-amber-100">
+                            Best Choice
+                        </span>
+                    </div>
+
+                    <h1 class="st-hero-title text-3xl md:text-5xl">
+                        {{ $product->name }}
+                    </h1>
+
+                    <div class="mt-4 flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
+                        <span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 ring-1 ring-slate-200">
+                            ⭐ 4.8 Rating
+                        </span>
+
+                        <span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 ring-1 ring-slate-200">
+                            📦 Ready to Order
+                        </span>
+
+                        <span class="inline-flex items-center gap-1 rounded-full bg-white/80 px-3 py-1 ring-1 ring-slate-200">
+                            🛡 Support Garansi
+                        </span>
+                    </div>
+
+                    <p class="st-hero-text mt-4 text-sm">
+                        Pilih varian gadget yang sesuai, cek stok, lalu lanjutkan ke keranjang atau langsung beli sekarang.
                     </p>
-                </div>
 
-                <!-- Varian Spesifikasi (Dinamis dari JSON) -->
-                <div id="variation-selector" data-variants="{{ json_encode($product->variants) }}" class="flex flex-col gap-6">
-                    <h2 class="text-xl font-black italic uppercase border-b-4 border-black pb-1">System_Configuration</h2>
+                    <div class="mt-6 rounded-3xl border border-orange-100 bg-orange-50 p-5">
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-orange-700">
+                            Harga Produk
+                        </p>
 
-                    @if(isset($availableAttributes) && count($availableAttributes) > 0)
-                        @foreach($availableAttributes as $attributeName => $options)
-                            <div class="mb-4">
-                                <p class="text-xs font-bold font-mono uppercase mb-2">> {{ $attributeName }}</p>
-                                <div class="flex flex-wrap gap-2">
-                                    @foreach($options as $opt)
-                                        <button type="button"
-                                            class="spec-btn border-2 border-black px-4 py-2 font-black italic text-sm bg-white hover:bg-black hover:text-white transition-all"
-                                            data-key="{{ $attributeName }}"
-                                            data-value="{{ $opt }}">
-                                            {{ $opt }}
-                                        </button>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <!-- Jika produk ini tidak punya varian di DB -->
-                        <div class="border-2 border-dashed border-black p-4 bg-gray-50">
-                            <p class="text-sm font-bold opacity-50 italic">Standard Configuration Only</p>
+                        <p id="dynamic-price" class="mt-2 text-3xl md:text-5xl font-black tracking-tight text-slate-950">
+                            Rp {{ number_format($product->price, 0, ',', '.') }}
+                        </p>
+
+                        <p class="mt-2 text-xs text-slate-500">
+                            Harga dapat berubah sesuai varian, kapasitas, warna, atau konfigurasi yang dipilih.
+                        </p>
+                    </div>
+
+                    @if(($product->stock ?? 0) > 0 && ($product->stock ?? 0) <= 5)
+                        <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                            <p class="text-sm font-bold text-amber-800">
+                                Stok terbatas — tersisa {{ $product->stock }} unit.
+                            </p>
                         </div>
                     @endif
-                </div>
+                </section>
 
-                <button type="submit" id="btn-add-cart" class="w-full bg-black text-white py-6 px-8 font-black italic uppercase text-2xl shadow-[10px_10px_0px_0px_#C5F277] border-2 border-black opacity-50 cursor-not-allowed transition-all" disabled>
-                    Add_To_Cart
-                </button>
+                <!-- Variation -->
+                <section id="variation-selector"
+                         data-variants="{{ json_encode($product->variants) }}"
+                         class="st-card p-6 md:p-8">
+
+                    <div class="mb-6 flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="st-title text-xl">
+                                Pilih Varian
+                            </h2>
+                            <p class="st-muted mt-1 text-sm">
+                                Pilih opsi seperti warna, kapasitas, RAM, storage, atau konfigurasi lain sebelum checkout.
+                            </p>
+                        </div>
+
+                        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-100">
+                            Variant
+                        </span>
+                    </div>
+
+                    @if(isset($availableAttributes) && count($availableAttributes) > 0)
+                        <div class="space-y-5">
+                            @foreach($availableAttributes as $attributeName => $options)
+                                <div>
+                                    <p class="mb-3 text-sm font-bold text-slate-700">
+                                        {{ $attributeName }}
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($options as $opt)
+                                            <button type="button"
+                                                    class="spec-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 st-focus-ring"
+                                                    data-key="{{ $attributeName }}"
+                                                    data-value="{{ $opt }}">
+                                                {{ $opt }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4">
+                            <p class="text-sm font-semibold text-slate-600">
+                                Produk ini tersedia dalam konfigurasi standar.
+                            </p>
+                        </div>
+                    @endif
+                </section>
+
+                <!-- Quantity + CTA -->
+                <section class="st-card p-6 md:p-8">
+                    <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 class="st-title text-lg">
+                                Jumlah Pembelian
+                            </h2>
+
+                            <p class="st-muted mt-1 text-sm">
+                                Stok tersedia: {{ $product->stock }}
+                            </p>
+                        </div>
+
+                        <div class="flex w-max items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1">
+                            <button type="button" id="btn-minus"
+                                    class="h-11 w-11 rounded-xl bg-white text-lg font-black text-slate-900 ring-1 ring-slate-200 transition hover:bg-blue-600 hover:text-white st-focus-ring">
+                                -
+                            </button>
+
+                            <input type="number"
+                                   name="quantity"
+                                   id="input-quantity"
+                                   value="1"
+                                   min="1"
+                                   max="{{ $product->stock }}"
+                                   class="w-16 bg-transparent text-center text-xl font-black text-slate-950 focus:outline-none"
+                                   readonly>
+
+                            <button type="button" id="btn-plus"
+                                    class="h-11 w-11 rounded-xl bg-white text-lg font-black text-slate-900 ring-1 ring-slate-200 transition hover:bg-blue-600 hover:text-white st-focus-ring">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <button type="submit"
+                                name="action"
+                                value="cart"
+                                id="btn-add-cart"
+                                class="st-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                            + Tambah ke Keranjang
+                        </button>
+
+                        <button type="submit"
+                                name="action"
+                                value="buy_now"
+                                id="btn-buy-now"
+                                class="st-btn-accent w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                            Beli Sekarang
+                        </button>
+                    </div>
+
+                    <p class="mt-4 text-center text-xs font-semibold text-slate-400">
+                        Checkout aman · Produk original · Support setelah pembelian
+                    </p>
+                </section>
+
+                <!-- Trust -->
+                <section class="st-card p-6 md:p-8">
+                    <h2 class="st-title text-xl">
+                        Kenapa beli gadget di SmartTech?
+                    </h2>
+
+                    <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                        <div class="st-card-soft p-4">
+                            <div class="st-icon-blue mb-3">📱</div>
+                            <p class="text-sm font-bold text-slate-950">Produk Original</p>
+                            <p class="st-muted mt-1 text-xs">Informasi produk jelas.</p>
+                        </div>
+
+                        <div class="st-card-soft p-4">
+                            <div class="st-icon-green mb-3">🛡️</div>
+                            <p class="text-sm font-bold text-slate-950">Garansi & Support</p>
+                            <p class="st-muted mt-1 text-xs">Bantuan setelah beli.</p>
+                        </div>
+
+                        <div class="st-card-soft p-4">
+                            <div class="st-icon-orange mb-3">💳</div>
+                            <p class="text-sm font-bold text-slate-950">Checkout Aman</p>
+                            <p class="st-muted mt-1 text-xs">Alur pembayaran jelas.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Description -->
+                <section class="st-card p-6 md:p-8">
+                    <div class="mb-4 flex items-center justify-between gap-4">
+                        <h2 class="st-title text-xl">
+                            Deskripsi Produk
+                        </h2>
+
+                        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-blue-100">
+                            Overview
+                        </span>
+                    </div>
+
+                    <p class="text-sm leading-7 text-slate-600">
+                        {{ $product->description ?? 'Gadget pilihan SmartTech untuk kebutuhan harian, kerja, belajar, hiburan, dan produktivitas. Produk memiliki informasi yang jelas agar customer lebih mudah memilih sebelum checkout.' }}
+                    </p>
+                </section>
+
+                @if(!empty($product->specifications))
+                    <section class="st-card p-6 md:p-8">
+                        <div class="mb-6 flex items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                            <h2 class="st-title text-xl">
+                                Spesifikasi Gadget
+                            </h2>
+
+                            <span class="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 ring-1 ring-orange-100">
+                                Specs
+                            </span>
+                        </div>
+
+                        <div class="divide-y divide-slate-100 text-sm">
+                            @foreach($product->specifications as $key => $value)
+                                <div class="grid gap-1 py-3 md:grid-cols-2">
+                                    <span class="font-semibold text-slate-500">
+                                        {{ str_replace('_', ' ', $key) }}
+                                    </span>
+
+                                    <span class="font-bold text-slate-950 md:text-right">
+                                        {{ $value }}
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
             </div>
-        </div>
+        </section>
     </form>
 </main>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const variants = JSON.parse(document.getElementById('variation-selector').dataset.variants);
+        const variationSelector = document.getElementById('variation-selector');
+
+        if (!variationSelector) return;
+
+        const variants = JSON.parse(variationSelector.dataset.variants || '[]');
         const btnSubmit = document.getElementById('btn-add-cart');
+        const btnBuyNow = document.getElementById('btn-buy-now');
         const priceDisplay = document.getElementById('dynamic-price');
         const inputVariantId = document.getElementById('selected_variant_id');
         const inputVariantDetails = document.getElementById('selected_variant_details');
 
-        // Base price jika varian belum dipilih
+        const btnMinus = document.getElementById('btn-minus');
+        const btnPlus = document.getElementById('btn-plus');
+        const inputQty = document.getElementById('input-quantity');
+
+        btnMinus?.addEventListener('click', () => {
+            let qty = parseInt(inputQty.value);
+            if (qty > 1) inputQty.value = qty - 1;
+        });
+
+        btnPlus?.addEventListener('click', () => {
+            let qty = parseInt(inputQty.value);
+            let max = parseInt(inputQty.getAttribute('max')) || 99;
+            if (qty < max) inputQty.value = qty + 1;
+        });
+
         const basePrice = {{ $product->price }};
 
-        // Jika produk tidak punya varian, aktifkan tombol Add To Cart dengan variant_id kosong
-        if(variants.length === 0) {
-            btnSubmit.disabled = false;
-            btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
+        if (variants.length === 0) {
+            [btnSubmit, btnBuyNow].forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
             return;
         }
 
@@ -109,19 +371,16 @@
             button.addEventListener('click', function() {
                 let key = this.dataset.key;
 
-                // UX: Ganti warna tombol yang diklik (deselect yang lain)
                 document.querySelectorAll(`.spec-btn[data-key="${key}"]`).forEach(btn => {
-                    btn.classList.remove('bg-black', 'text-white', 'shadow-[4px_4px_0px_0px_#C5F277]');
-                    btn.classList.add('bg-white');
+                    btn.classList.remove('border-blue-500', 'bg-blue-600', 'text-white', 'shadow-lg');
+                    btn.classList.add('border-slate-200', 'bg-white', 'text-slate-700');
                 });
 
-                this.classList.remove('bg-white');
-                this.classList.add('bg-black', 'text-white', 'shadow-[4px_4px_0px_0px_#C5F277]');
+                this.classList.remove('border-slate-200', 'bg-white', 'text-slate-700');
+                this.classList.add('border-blue-500', 'bg-blue-600', 'text-white', 'shadow-lg');
 
-                // Simpan spesifikasi yang dipilih
                 selectedSpecs[key] = this.dataset.value;
 
-                // Cek apakah semua kelompok spesifikasi sudah dipilih
                 if (Object.keys(selectedSpecs).length === totalKeys) {
                     findMatchingVariant();
                 }
@@ -131,7 +390,8 @@
         function findMatchingVariant() {
             const matchedVariant = variants.find(variant => {
                 let isMatch = true;
-                if(variant.attributes) {
+
+                if (variant.attributes) {
                     for (const [key, value] of Object.entries(selectedSpecs)) {
                         if (variant.attributes[key] !== value) {
                             isMatch = false;
@@ -141,34 +401,31 @@
                 } else {
                     isMatch = false;
                 }
+
                 return isMatch;
             });
 
             if (matchedVariant) {
-                // Konfigurasi ditemukan dan tersedia
                 inputVariantId.value = matchedVariant.id;
+                inputVariantDetails.value = Object.entries(selectedSpecs).map(([k, v]) => `${k}: ${v}`).join(', ');
+                inputQty.setAttribute('max', matchedVariant.stock);
 
-                // Format spec details untuk disimpan ke database (misal: "RAM: 16GB, Storage: 512GB")
-                let detailsString = Object.entries(selectedSpecs).map(([k, v]) => `${k}: ${v}`).join(', ');
-                inputVariantDetails.value = detailsString;
-
-                // Update Harga
                 let finalPrice = matchedVariant.price > 0 ? matchedVariant.price : basePrice;
                 priceDisplay.innerText = "Rp " + new Intl.NumberFormat('id-ID').format(finalPrice);
 
-                // Aktifkan Tombol
-                btnSubmit.disabled = false;
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
-                btnSubmit.innerText = "Add_To_Cart";
+                [btnSubmit, btnBuyNow].forEach(btn => {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                });
             } else {
-                // Kombinasi tidak tersedia di database
                 inputVariantId.value = '';
                 inputVariantDetails.value = '';
-                priceDisplay.innerText = "Config Unavailable";
+                priceDisplay.innerText = "Varian tidak tersedia";
 
-                btnSubmit.disabled = true;
-                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-                btnSubmit.innerText = "Invalid_Configuration";
+                [btnSubmit, btnBuyNow].forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                });
             }
         }
     });

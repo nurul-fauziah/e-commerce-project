@@ -1,93 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dept: {{ $category->name }} - SmartTech</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-</head>
-<body class="bg-[#F5F5F0] text-black antialiased">
-    <!-- Navbar -->
-    <nav class="border-b-4 border-black bg-white sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <a href="{{ route('front.index') }}" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 bg-black flex items-center justify-center rounded-sm shadow-[3px_3px_0px_0px_#C5F277] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1 transition-all">
-                    <span class="text-white font-black text-xl italic">S</span>
-                </div>
-                <span class="font-black text-xl tracking-tighter uppercase italic">SmartTech</span>
-            </a>
-            <div class="flex items-center gap-2 font-black italic uppercase text-sm">
-                <span class="bg-black text-white px-2 py-1">DEPT</span>
-                <span class="border-2 border-black px-2 py-1">{{ $category->name }}</span>
-            </div>
-        </div>
-    </nav>
+@extends('layouts.front')
 
-    <main class="max-w-7xl mx-auto px-4 py-16">
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <div class="max-w-2xl">
-                <span class="bg-black text-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] mb-6 inline-block">Classification: {{ $category->slug }}</span>
-                <h1 class="text-6xl md:text-8xl font-black italic tracking-tighter leading-[0.85] uppercase">
-                    {{ $category->name }} <br><span class="text-white bg-black px-4">Inventory</span>
-                </h1>
+@section('title', $category->name . ' - SmartTech')
+
+@section('content')
+<main class="relative overflow-hidden">
+    <!-- Subtle modern accents: keep the e-commerce structure, add visual warmth -->
+    <div class="pointer-events-none absolute inset-0 -z-10">
+        <div class="absolute -top-28 right-[-12%] h-96 w-96 rounded-full bg-blue-500/10 blur-3xl"></div>
+        <div class="absolute top-[28rem] left-[-10%] h-80 w-80 rounded-full bg-orange-400/10 blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+
+        <!-- Category Header -->
+        <section class="mb-10 md:mb-14">
+            <div class="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_10%,rgba(37,99,235,0.13),transparent_34%),radial-gradient(circle_at_85%_0%,rgba(245,158,11,0.15),transparent_32%)]"></div>
+
+                <div class="relative grid lg:grid-cols-[1.15fr_0.85fr] gap-8 items-center p-6 sm:p-8 md:p-10">
+                    <div>
+                        <a href="{{ route('front.catalog') }}" class="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-600 transition mb-5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            Kembali ke katalog
+                        </a>
+
+                        <div class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-blue-700 mb-5">
+                            <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Category Shelf
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[0.95] text-slate-950 uppercase">
+                            {{ $category->name }}
+                            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-orange-500">Collection</span>
+                        </h1>
+
+                        <p class="mt-5 max-w-2xl text-sm sm:text-base leading-7 text-slate-600">
+                            Pilihan produk dalam kategori {{ $category->name }} dengan harga jelas, status stok terlihat, dan akses cepat ke detail sebelum checkout.
+                        </p>
+
+                        <div class="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
+                            <div class="rounded-2xl border border-slate-200 bg-white/75 p-4">
+                                <p class="text-lg font-black text-slate-950">{{ $category->products->count() }}</p>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Produk tersedia</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-200 bg-white/75 p-4">
+                                <p class="text-lg font-black text-slate-950">Original</p>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Produk resmi</p>
+                            </div>
+                            <div class="rounded-2xl border border-slate-200 bg-white/75 p-4">
+                                <p class="text-lg font-black text-slate-950">Warranty</p>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Garansi toko</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hidden lg:block">
+                        <div class="relative rounded-[2rem] bg-slate-950 p-5 shadow-2xl overflow-hidden">
+                            <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(37,99,235,0.30),transparent_40%),radial-gradient(circle_at_85%_18%,rgba(245,158,11,0.28),transparent_34%)]"></div>
+                            <div class="relative aspect-[4/3] rounded-[1.5rem] border border-white/10 bg-slate-900 p-6 flex items-center justify-center">
+                                <div class="grid grid-cols-2 gap-4 rotate-2">
+                                    <div class="h-28 w-28 rounded-3xl bg-white/10 border border-white/10 p-4 shadow-xl">
+                                        <div class="h-10 w-10 rounded-2xl bg-blue-500"></div>
+                                        <div class="mt-4 h-3 w-16 rounded-full bg-white/20"></div>
+                                        <div class="mt-2 h-3 w-12 rounded-full bg-white/10"></div>
+                                    </div>
+                                    <div class="mt-8 h-28 w-28 rounded-3xl bg-white/10 border border-white/10 p-4 shadow-xl">
+                                        <div class="h-10 w-10 rounded-2xl bg-orange-400"></div>
+                                        <div class="mt-4 h-3 w-16 rounded-full bg-white/20"></div>
+                                        <div class="mt-2 h-3 w-12 rounded-full bg-white/10"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative mt-4 flex items-center justify-between rounded-2xl bg-white/10 p-4 backdrop-blur">
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Current Category</p>
+                                    <p class="text-white font-black">{{ $category->name }}</p>
+                                </div>
+                                <span class="rounded-full bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-300">Open</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col items-end gap-2">
-                <p class="text-right text-sm font-bold uppercase opacity-40 tracking-widest">Total_Records_Found</p>
-                <p class="text-5xl font-black italic leading-none">{{ $category->products->count() }}</p>
+        </section>
+
+        <!-- Category Toolbar -->
+        <section class="mb-8 md:mb-10">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-4 md:p-5 shadow-sm">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.28em] text-blue-600">Filtered Product Shelf</p>
+                    <h2 class="mt-1 text-2xl md:text-3xl font-black uppercase tracking-tight text-slate-950">
+                        Produk {{ $category->name }}
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-2 sm:flex gap-3">
+                    <div class="rounded-2xl bg-blue-50 px-4 py-3 text-center sm:text-left">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-blue-700">Total Produk</p>
+                        <p class="text-sm font-black text-slate-950">{{ $category->products->count() }} Item</p>
+                    </div>
+                    <div class="rounded-2xl bg-orange-50 px-4 py-3 text-center sm:text-left">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-orange-700">Kategori</p>
+                        <p class="text-sm font-black text-slate-950">{{ $category->slug }}</p>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
 
         <!-- Product Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            @forelse ($category->products as $product)
-            <div class="group relative">
-                <div class="bg-white border-4 border-black p-6 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all group-hover:shadow-[15px_15px_0px_0px_#C5F277] group-hover:-translate-x-2 group-hover:-translate-y-2">
-                    <a href="{{ route('front.details', $product->slug) }}">
-                        <div class="aspect-square bg-[#E4E3E0] border-2 border-black mb-6 overflow-hidden relative">
-                            <img src="{{ Storage::url($product->thumbnail) }}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" alt="{{ $product->name }}">
-                            <div class="absolute bottom-4 left-4 bg-[#C5F277] border-2 border-black text-[10px] px-3 py-1 font-bold uppercase tracking-widest shadow-[3px_3px_0px_0px_#000]">
-                                View_Specs
-                            </div>
+        <section>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                @forelse ($category->products as $product)
+                    <x-product-card :product="$product" />
+                @empty
+                    <div class="col-span-full st-card p-10 md:p-14 text-center">
+                        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-3xl">
+                            📦
                         </div>
 
-                        <div class="mb-6">
-                            <h3 class="text-3xl font-black italic tracking-tight uppercase leading-none mb-2">{{ $product->name }}</h3>
-                            <p class="text-sm font-semibold opacity-50 line-clamp-2">{{ $product->description }}</p>
-                        </div>
+                        <p class="text-2xl font-black uppercase tracking-tight text-slate-950">
+                            Kategori masih kosong
+                        </p>
 
-                        <div class="flex items-center justify-between pt-6 border-t-2 border-black border-dashed">
-                            <span class="font-black text-2xl italic">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                            <div class="bg-black text-white p-4 group-hover:bg-[#C5F277] group-hover:text-black transition-all border-2 border-black">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            @empty
-            <div class="col-span-full py-32 border-4 border-dashed border-black/10 flex flex-col items-center justify-center">
-                <p class="text-gray-300 font-black text-4xl uppercase tracking-tighter italic">No_Hardware_Found</p>
-                <p class="text-gray-400 font-bold uppercase tracking-widest mt-2">This_Department_Is_Currently_Empty</p>
-                <a href="{{ route('front.index') }}" class="mt-8 bg-black text-white px-8 py-4 font-black italic uppercase hover:bg-[#C5F277] hover:text-black transition-all border-2 border-black shadow-[6px_6px_0px_0px_#000]">
-                    Return_To_Base
-                </a>
-            </div>
-            @endforelse
-        </div>
-    </main>
+                        <p class="mt-3 text-sm text-slate-500">
+                            Belum ada produk di kategori {{ $category->name }}.
+                        </p>
 
-    <!-- Footer Info -->
-    <footer class="max-w-7xl mx-auto px-4 py-20 border-t-4 border-black mt-20">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-            <p class="font-bold text-xs uppercase tracking-[0.4em] opacity-30">SmartTech_Industrial_Catalog_2026</p>
-            <div class="flex gap-8 font-black italic uppercase text-sm">
-                <a href="#" class="hover:text-[#C5F277] transition-colors">Privacy_Protocol</a>
-                <a href="#" class="hover:text-[#C5F277] transition-colors">Terms_Of_Service</a>
+                        <a href="{{ route('front.catalog') }}" class="st-btn-primary mt-6">
+                            Lihat Katalog
+                        </a>
+                    </div>
+                @endforelse
             </div>
-        </div>
-    </footer>
-</body>
-</html>
+        </section>
+    </div>
+</main>
+@endsection

@@ -28,55 +28,41 @@ class CartController extends Controller
     /**
      * Menambahkan produk & varian spesifikasinya ke keranjang.
      */
-    public function add(Request $request, Product $product)
+public function add(Request $request, Product $product)
     {
         $variantId = $request->input('variant_id');
         $variantDetails = $request->input('variant_details');
-        $quantity = $request->input('quantity', 1); // Default 1 jika tidak ada input qty
+        $quantity = (int) $request->input('quantity', 1);
+        $action = $request->input('action', 'cart');
 
-        // Tentukan harga dan stok dasar (berasumsi dari produk utama)
         $finalPrice = $product->price;
         $availableStock = $product->stock;
 
-        // Jika pembeli memilih varian spesifik (misal: RAM 16GB, 512GB SSD)
         if ($variantId) {
-            $variant = ProductVariant::find($variantId);
-
+            $variant = \App\Models\ProductVariant::find($variantId);
             if ($variant) {
-                // Gunakan harga varian jika di-set lebih dari 0, jika tidak gunakan harga dasar produk
                 $finalPrice = $variant->price > 0 ? $variant->price : $product->price;
                 $availableStock = $variant->stock;
             } else {
-                return redirect()->back()->withErrors(['error' => 'Konfigurasi spesifikasi tidak ditemukan.']);
+                return redirect()->back()->withErrors(['error' => 'Konfigurasi tidak ditemukan.']);
             }
         }
 
-        // Validasi ketersediaan stok fisik
         if ($availableStock < $quantity) {
-            return redirect()->back()->withErrors(['error' => 'Stok hardware tidak mencukupi untuk spesifikasi ini.']);
+            return redirect()->back()->withErrors(['error' => 'Stok tidak mencukupi.']);
         }
 
-        // Ambil keranjang saat ini
         $cart = session()->get('cart', []);
-
-        // Buat ID unik untuk item di keranjang.
-        // Kenapa? Agar "MacBook RAM 8GB" dan "MacBook RAM 16GB" dihitung sebagai 2 baris berbeda di keranjang.
         $cartKey = $variantId ? $product->id . '-' . $variantId : $product->id . '-std';
 
-        // Logika Penambahan Item
         if (isset($cart[$cartKey])) {
-            // Jika produk dengan spek yang sama persis sudah ada, tambah kuantitasnya
             $newQuantity = $cart[$cartKey]['quantity'] + $quantity;
-
-            // Cek ulang stok sebelum menambah kuantitas di keranjang
             if ($newQuantity > $availableStock) {
                 return redirect()->back()->withErrors(['error' => 'Batas maksimal stok tercapai.']);
             }
-
             $cart[$cartKey]['quantity'] = $newQuantity;
             $cart[$cartKey]['subtotal'] = $cart[$cartKey]['quantity'] * $cart[$cartKey]['price'];
         } else {
-            // Jika item benar-benar baru di keranjang
             $cart[$cartKey] = [
                 'product_id' => $product->id,
                 'variant_id' => $variantId,
@@ -90,10 +76,27 @@ class CartController extends Controller
             ];
         }
 
-        // Simpan kembali array yang sudah di-update ke dalam Laravel Session
         session()->put('cart', $cart);
 
-        return redirect()->route('front.cart')->with('success', 'Hardware berhasil ditambahkan ke keranjang.');
+        // --- PERBAIKAN LOGIKA BUY NOW ---
+        if ($action === 'buy_now') {
+            // 1. Kunci ID barang yang mau dibeli instan
+            session()->put('selected_cart_keys', [$cartKey]);
+
+            // 2. Panggil mesin kalkulator OrderService secara manual
+            $orderService = app(\App\Services\OrderService::class);
+            $success = $orderService->beginCheckout();
+
+            if (!$success) {
+                return redirect()->back()->withErrors(['error' => 'Gagal memproses kalkulasi Buy Now.']);
+            }
+
+            // 3. Setelah kalkulasi selesai, baru lempar ke halaman Booking
+            return redirect()->route('front.booking');
+        }
+
+        // Jika hanya Add to Cart biasa
+        return redirect()->route('front.cart')->with('success', 'Hardware berhasil ditambahkan.');
     }
 
     /**

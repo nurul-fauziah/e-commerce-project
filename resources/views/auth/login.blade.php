@@ -1,49 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SmartTech</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-</head>
-<body class="bg-[#F5F5F0] flex items-center justify-center min-h-screen p-4">
-    <div class="max-w-md w-full bg-white border-8 border-black p-10 shadow-[20px_20px_0px_0px_#000]">
-        <h1 class="text-4xl font-black italic uppercase mb-8 tracking-tighter">Identify_Yourself</h1>
+@extends('layouts.front')
 
-        <!-- Notif Error Umum -->
-        @if($errors->any())
-        <div class="bg-red-500 text-white border-4 border-black p-4 mb-6 font-bold uppercase text-xs shadow-[4px_4px_0px_0px_#000]">
-            <p>! Error: {{ $errors->first() }}</p>
+@section('title', 'Login - SmartTech')
+
+@section('content')
+<main class="st-page-wrap">
+
+    <section class="grid gap-6 lg:grid-cols-[1fr_420px] items-center">
+
+        <div class="st-hero p-6 md:p-10">
+            <span class="st-eyebrow st-eyebrow-blue">
+                Customer Login
+            </span>
+
+            <h1 class="st-hero-title text-3xl md:text-6xl mt-4">
+                Masuk dan lanjutkan belanja.
+            </h1>
+
+            <p class="st-hero-text mt-4 max-w-2xl">
+                Cek pesanan, lanjut checkout, dan pantau status transaksi SmartTech dari satu akun customer.
+            </p>
+
+            <div class="mt-8 grid gap-3 sm:grid-cols-3">
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-blue mb-3">✓</div>
+                    <h3 class="st-subtitle text-sm">Original</h3>
+                    <p class="st-muted text-xs mt-1">Produk resmi & jelas.</p>
+                </div>
+
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-green mb-3">🔒</div>
+                    <h3 class="st-subtitle text-sm">Secure</h3>
+                    <p class="st-muted text-xs mt-1">Checkout lebih aman.</p>
+                </div>
+
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-orange mb-3">⚡</div>
+                    <h3 class="st-subtitle text-sm">Fast</h3>
+                    <p class="st-muted text-xs mt-1">Belanja lebih cepat.</p>
+                </div>
+            </div>
         </div>
-        @endif
 
-        <form action="{{ url('/login') }}" method="POST" class="flex flex-col gap-6">
-            @csrf
-            <div class="flex flex-col gap-2">
-                <label class="font-black uppercase text-xs tracking-widest">Email_Address</label>
-                <input type="email" name="email" value="{{ old('email') }}" required
-                       class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none @error('email') border-red-500 @enderror">
-                @error('email')
-                    <span class="text-red-500 text-[10px] font-black uppercase italic">{{ $message }}</span>
-                @enderror
+        <section class="st-card p-6 md:p-8">
+            <div class="mb-7">
+                <span class="st-eyebrow">
+                    Welcome Back
+                </span>
+
+                <h2 class="st-title text-3xl mt-4">
+                    Login Akun
+                </h2>
+
+                <p class="st-muted mt-2 text-sm">
+                    Masuk untuk lanjut checkout dan pantau pesanan kamu.
+                </p>
             </div>
 
-            <div class="flex flex-col gap-2">
-                <label class="font-black uppercase text-xs tracking-widest">Security_Password</label>
-                <input type="password" name="password" required
-                       class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none">
+            @if($errors->any())
+                <div class="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+                    <p class="font-bold">Login gagal</p>
+                    <p class="mt-1">{{ $errors->first() }}</p>
+                </div>
+            @endif
+
+            <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                @csrf
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">
+                        Email Address
+                    </label>
+                    <input type="email"
+                           name="email"
+                           value="{{ old('email') }}"
+                           required
+                           placeholder="nama@email.com"
+                           class="st-input @error('email') border-red-400 @enderror">
+
+                    @error('email')
+                        <p class="mt-2 text-xs font-semibold text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="mb-2 block text-sm font-semibold text-slate-700">
+                        Password
+                    </label>
+                    <input type="password"
+                           name="password"
+                           required
+                           placeholder="Masukkan password"
+                           class="st-input">
+                </div>
+
+                <button type="submit" class="st-btn-accent w-full">
+                    Login to Account →
+                </button>
+            </form>
+
+            <div class="mt-7 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+                <p class="font-bold">Belum punya akun?</p>
+                <p class="mt-1">
+                    Buat akun biar checkout lebih cepat dan riwayat pesanan tersimpan.
+                </p>
+
+                <a href="{{ route('register') }}" class="mt-3 inline-flex font-bold text-blue-700 hover:text-blue-900">
+                    Create new account →
+                </a>
             </div>
+        </section>
 
-            <button type="submit" class="bg-black text-white py-5 font-black italic uppercase text-xl border-2 border-black shadow-[8px_8px_0px_0px_#C5F277] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-                Initialize_Login
-            </button>
-        </form>
+    </section>
 
-        <p class="mt-10 pt-6 border-t-4 border-black border-dashed font-bold text-sm uppercase opacity-50">
-            New_User? <a href="{{ route('register') }}" class="underline decoration-4 decoration-[#C5F277] hover:text-black transition-colors">Create_Identity</a>
-        </p>
-    </div>
-</body>
-</html>
+</main>
+@endsection

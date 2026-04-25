@@ -1,82 +1,164 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SmartTech</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        /* Mencegah horizontal scroll karena bayangan besar */
-        .overflow-fix { overflow-x: hidden; }
-    </style>
-</head>
-<body class="bg-[#F5F5F0] flex items-center justify-center min-h-screen p-6 overflow-fix">
-    <!-- Lebar dinaikin ke max-w-lg biar gak sesak -->
-    <div class="max-w-lg w-full bg-white border-[6px] md:border-8 border-black p-6 md:p-10 shadow-[15px_15px_0px_0px_#000] my-10">
+@extends('layouts.front')
 
-        <div class="mb-10">
-            <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-none">
-                Create_New <br> <span class="bg-black text-white px-2">Identity</span>
+@section('title', 'Register - SmartTech')
+
+@section('content')
+<main class="st-page-wrap">
+
+    <section class="grid gap-6 lg:grid-cols-[1fr_460px] items-center">
+
+        <div class="st-hero p-6 md:p-10">
+            <span class="st-eyebrow st-eyebrow-blue">
+                Customer Account
+            </span>
+
+            <h1 class="st-hero-title text-3xl md:text-6xl mt-4">
+                Daftar sekali, belanja lebih cepat.
             </h1>
-            <p class="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40 mt-4">System_Registration_Protocol_v1.0</p>
-        </div>
 
-        <form action="{{ url('/register') }}" method="POST" class="flex flex-col gap-6">
-            @csrf
+            <p class="st-hero-text mt-4 max-w-2xl">
+                Simpan data customer, pantau pesanan, dan lanjut checkout produk favorit tanpa isi data berulang-ulang.
+            </p>
 
-            <!-- Name -->
-            <div class="flex flex-col gap-2">
-                <label class="font-black uppercase text-[10px] tracking-[0.2em] opacity-60">Full_Name</label>
-                <input type="text" name="name" value="{{ old('name') }}" required
-                       class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none transition-all @error('name') border-red-500 @enderror"
-                       placeholder="John Doe">
-                @error('name')
-                    <span class="text-red-500 text-[10px] font-black uppercase italic tracking-widest mt-1">! {{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Email -->
-            <div class="flex flex-col gap-2">
-                <label class="font-black uppercase text-[10px] tracking-[0.2em] opacity-60">Email_Address</label>
-                <input type="email" name="email" value="{{ old('email') }}" required
-                       class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none transition-all @error('email') border-red-500 @enderror"
-                       placeholder="name@domain.com">
-                @error('email')
-                    <span class="text-red-500 text-[10px] font-black uppercase italic tracking-widest mt-1">! {{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Password Grid (Biar gak terlalu panjang ke bawah) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col gap-2">
-                    <label class="font-black uppercase text-[10px] tracking-[0.2em] opacity-60">Password</label>
-                    <input type="password" name="password" required
-                           class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none transition-all @error('password') border-red-500 @enderror">
+            <div class="mt-8 grid gap-3 sm:grid-cols-3">
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-green mb-3">🛡️</div>
+                    <h3 class="st-subtitle text-sm">Secure Account</h3>
+                    <p class="st-muted text-xs mt-1">Data checkout lebih rapi.</p>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <label class="font-black uppercase text-[10px] tracking-[0.2em] opacity-60">Confirm</label>
-                    <input type="password" name="password_confirmation" required
-                           class="border-4 border-black p-4 font-bold focus:bg-[#C5F277] outline-none transition-all">
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-blue mb-3">📦</div>
+                    <h3 class="st-subtitle text-sm">Order Tracking</h3>
+                    <p class="st-muted text-xs mt-1">Cek status pesanan.</p>
+                </div>
+
+                <div class="st-card-soft p-5">
+                    <div class="st-icon-orange mb-3">⚡</div>
+                    <h3 class="st-subtitle text-sm">Fast Checkout</h3>
+                    <p class="st-muted text-xs mt-1">Belanja lebih cepat.</p>
                 </div>
             </div>
-            @error('password')
-                <span class="text-red-500 text-[10px] font-black uppercase italic tracking-widest">! {{ $message }}</span>
-            @enderror
-
-            <button type="submit" class="bg-black text-white py-6 font-black italic uppercase text-2xl border-2 border-black shadow-[8px_8px_0px_0px_#C5F277] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all mt-6 active:scale-95">
-                Register_Now
-            </button>
-        </form>
-
-        <div class="mt-12 pt-8 border-t-4 border-black border-dashed">
-            <p class="font-bold text-xs uppercase opacity-50 mb-4 tracking-widest">Already_Registered?</p>
-            <a href="{{ route('login') }}" class="inline-block font-black italic uppercase text-xl hover:text-emerald-600 transition-colors underline decoration-[6px] decoration-[#C5F277] underline-offset-8">
-                Access_Terminal
-            </a>
         </div>
-    </div>
-</body>
-</html>
+
+        <section class="st-card p-6 md:p-8">
+            <div class="mb-7">
+                <span class="st-eyebrow">
+                    Create Account
+                </span>
+
+                <h2 class="st-title text-3xl mt-4">
+                    Buat Akun Baru
+                </h2>
+
+                <p class="st-muted mt-2 text-sm">
+                    Isi data di bawah untuk mulai belanja dan tracking pesanan.
+                </p>
+            </div>
+
+            @if ($errors->any())
+                <div class="mb-6 rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">
+                    <p class="font-bold mb-2">Ada data yang perlu dicek lagi:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('register') }}" method="POST" class="space-y-5">
+                @csrf
+
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-slate-700 mb-2">
+                        Nama Lengkap
+                    </label>
+                    <input id="name"
+                           type="text"
+                           name="name"
+                           value="{{ old('name') }}"
+                           required
+                           autocomplete="name"
+                           class="st-input @error('name') border-red-400 @enderror"
+                           placeholder="Masukkan nama lengkap">
+
+                    @error('name')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+                        Email
+                    </label>
+                    <input id="email"
+                           type="email"
+                           name="email"
+                           value="{{ old('email') }}"
+                           required
+                           autocomplete="email"
+                           class="st-input @error('email') border-red-400 @enderror"
+                           placeholder="nama@email.com">
+
+                    @error('email')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">
+                            Password
+                        </label>
+                        <input id="password"
+                               type="password"
+                               name="password"
+                               required
+                               autocomplete="new-password"
+                               class="st-input @error('password') border-red-400 @enderror"
+                               placeholder="Minimal 8 karakter">
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-semibold text-slate-700 mb-2">
+                            Konfirmasi Password
+                        </label>
+                        <input id="password_confirmation"
+                               type="password"
+                               name="password_confirmation"
+                               required
+                               autocomplete="new-password"
+                               class="st-input"
+                               placeholder="Ulangi password">
+                    </div>
+                </div>
+
+                @error('password')
+                    <p class="-mt-3 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+                    <p class="font-bold mb-1">Benefit akun customer</p>
+                    <p>Checkout lebih cepat, data pesanan tersimpan, dan status order lebih mudah dipantau.</p>
+                </div>
+
+                <button type="submit" class="st-btn-accent w-full">
+                    Daftar Sekarang
+                </button>
+            </form>
+
+            <div class="mt-7 border-t border-slate-100 pt-6 text-center">
+                <p class="text-sm text-slate-500">
+                    Sudah punya akun?
+                    <a href="{{ route('login') }}" class="font-bold text-blue-700 hover:text-blue-900">
+                        Masuk di sini
+                    </a>
+                </p>
+            </div>
+        </section>
+
+    </section>
+
+</main>
+@endsection

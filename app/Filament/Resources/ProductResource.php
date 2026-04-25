@@ -64,6 +64,18 @@ class ProductResource extends Resource
                             ])->columnSpan(1),
                     ]),
 
+                // TABEL SPESIFIKASI UMUM (JSON)
+                Section::make('Technical Specifications')
+                    ->description('Spesifikasi umum yang berlaku untuk semua varian produk ini.')
+                    ->schema([
+                        Forms\Components\KeyValue::make('specifications')
+                            ->label('Tech Specs')
+                            ->keyLabel('Spesifikasi (cth: Chipset, Garansi)')
+                            ->valueLabel('Nilai (cth: Snapdragon 8 Gen 3, 2 Tahun)')
+                            ->addActionLabel('Add New Spec')
+                            ->reorderable(),
+                    ]),
+
                 Section::make('Media & Categorization')
                     ->schema([
                         Grid::make(2)->schema([
@@ -88,7 +100,6 @@ class ProductResource extends Resource
 
                 Section::make('Product Variants & Gallery')
                     ->schema([
-                        // REVISI UTAMA: Repeater untuk Varian Elektronik
                         Forms\Components\Repeater::make('variants')
                             ->relationship('variants')
                             ->schema([
@@ -96,7 +107,6 @@ class ProductResource extends Resource
                                     Forms\Components\TextInput::make('sku')
                                         ->label('SKU (Kode Barang)')
                                         ->required()
-                                        // Validasi unik agar tidak ada SKU ganda di database
                                         ->unique(ignoreRecord: true),
 
                                     Forms\Components\TextInput::make('price')
@@ -111,18 +121,17 @@ class ProductResource extends Resource
                                         ->required(),
                                 ]),
 
-                                // Komponen KeyValue untuk atribut JSON (RAM, Storage, Warna, dll)
                                 Forms\Components\KeyValue::make('attributes')
-                                    ->label('Spesifikasi Teknis Varian')
-                                    ->keyLabel('Jenis Spesifikasi (cth: RAM)')
+                                    ->label('Spesifikasi Varian (Pembeda Harga)')
+                                    ->keyLabel('Jenis (cth: RAM)')
                                     ->valueLabel('Nilai (cth: 16GB DDR5)')
-                                    ->addActionLabel('Tambah Spesifikasi')
+                                    ->addActionLabel('Tambah Atribut Varian')
                                     ->reorderable()
                                     ->required(),
                             ])
                             ->itemLabel(fn (array $state): ?string => $state['sku'] ?? 'New Variant')
                             ->collapsible()
-                            ->defaultItems(1) // Otomatis menampilkan 1 form kosong saat tambah baru
+                            ->defaultItems(1)
                             ->columnSpanFull(),
 
                         Forms\Components\Repeater::make('photos')

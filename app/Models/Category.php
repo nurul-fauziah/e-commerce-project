@@ -24,6 +24,7 @@ class Category extends Model
     {
         return $this->hasMany(Product::class, 'st_category_id');
     }
+    
 
     public function setNameAttribute($value){
         $this->attributes['name'] = $value;
