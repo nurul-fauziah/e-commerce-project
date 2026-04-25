@@ -529,25 +529,21 @@
 
                 <!-- Cart -->
                 <a href="{{ route('front.cart') }}"
-                   class="relative inline-flex items-center justify-center gap-2 h-11 rounded-2xl bg-amber-400 px-3 md:px-4 text-slate-950 hover:bg-amber-300 hover:-translate-y-0.5 transition st-soft-shadow st-focus-ring"
-                   aria-label="Open cart">
+                class="relative flex items-center justify-center h-11 w-11 rounded-2xl bg-amber-400 text-slate-900 hover:bg-amber-300 transition"
+                aria-label="Open cart">
 
-                    <svg class="w-[21px] h-[21px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M6.5 7.5H20L18.6 14.4C18.45 15.15 17.8 15.7 17.03 15.7H8.25C7.48 15.7 6.82 15.16 6.66 14.41L5.15 5.9H3.5"
-                              stroke="currentColor"
-                              stroke-width="2"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"/>
-                        <circle cx="9" cy="19" r="1.35" fill="currentColor"/>
-                        <circle cx="17" cy="19" r="1.35" fill="currentColor"/>
+                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 6H6L8 14.5C8.1 15 8.5 15.3 9 15.3H17C17.5 15.3 17.9 15 18 14.5L19.2 9H7"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                        <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                        <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
                     </svg>
 
-                    <span class="hidden md:inline text-sm font-black">
-                        Cart
-                    </span>
-
                     @if(session('cart') && count(session('cart')) > 0)
-                        <span class="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
+                        <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
                             {{ min(count(session('cart')), 99) }}{{ count(session('cart')) > 99 ? '+' : '' }}
                         </span>
                     @endif
