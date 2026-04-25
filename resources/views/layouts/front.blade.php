@@ -529,22 +529,21 @@
 
                 <!-- Cart -->
                 <a href="{{ route('front.cart') }}"
-                class="relative inline-flex items-center justify-center h-11 w-11 rounded-2xl bg-amber-400 text-slate-950 hover:bg-amber-300 hover:-translate-y-0.5 transition st-soft-shadow st-focus-ring"
+                class="relative flex items-center justify-center h-11 w-11 rounded-2xl bg-amber-400 text-slate-900 hover:bg-amber-300 transition"
                 aria-label="Open cart">
 
-                    <svg class="w-[26px] h-[26px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M3 5H5L7.2 14.5C7.35 15.2 7.95 15.7 8.7 15.7H17.2C17.95 15.7 18.6 15.15 18.75 14.4L20 8H6"
+                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 6H6L8 14.5C8.1 15 8.5 15.3 9 15.3H17C17.5 15.3 17.9 15 18 14.5L19.2 9H7"
                             stroke="currentColor"
-                            stroke-width="1.7"
+                            stroke-width="1.8"
                             stroke-linecap="round"
                             stroke-linejoin="round"/>
-
-                        <circle cx="9" cy="19" r="1.6" fill="currentColor"/>
-                        <circle cx="17" cy="19" r="1.6" fill="currentColor"/>
+                        <circle cx="10" cy="19" r="1.5" fill="currentColor"/>
+                        <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
                     </svg>
 
                     @if(session('cart') && count(session('cart')) > 0)
-                        <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
+                        <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">
                             {{ min(count(session('cart')), 99) }}{{ count(session('cart')) > 99 ? '+' : '' }}
                         </span>
                     @endif
