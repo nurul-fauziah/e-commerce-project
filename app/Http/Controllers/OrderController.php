@@ -78,6 +78,15 @@ class OrderController extends Controller
         return redirect()->route('order.payment');
     }
 
+
+    public function orderFinished($id)
+    {
+        $transaction = ProductTransaction::with('transactionDetails.product')
+            ->findOrFail($id);
+
+        return view('order.order_finished', compact('transaction'));
+    }
+
     public function payment()
     {
         $id = session()->get('transaction_id');
@@ -90,31 +99,39 @@ class OrderController extends Controller
 
         $transaction = ProductTransaction::findOrFail($id);
 
+        return $this->showPaymentPage($transaction);
+    }
+
+    public function retryPayment(ProductTransaction $productTransaction)
+    {
+        if ($productTransaction->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($productTransaction->status !== 'pending') {
+            return redirect()
+                ->route('order.order_finished', $productTransaction->id)
+                ->withErrors(['error' => 'Pembayaran tidak bisa diubah karena status sudah final.']);
+        }
+
+        session()->put('transaction_id', $productTransaction->id);
+        session()->save();
+
+        return $this->showPaymentPage($productTransaction);
+    }
+
+    private function showPaymentPage(ProductTransaction $transaction)
+    {
         try {
-            $snapToken = $this->orderService->getSnapToken($id);
+            $snapToken = $this->orderService->getSnapToken($transaction->id);
 
             return view('order.payment', compact('transaction', 'snapToken'));
         } catch (\Exception $e) {
             Log::error('Midtrans Snap Token Error: ' . $e->getMessage());
 
             return redirect()
-                ->route('front.cart')
-                ->withErrors(['error' => 'Gagal menghubungkan pembayaran. Silakan coba lagi.']);
+                ->route('order.order_finished', $transaction->id)
+                ->withErrors(['error' => 'Gagal membuka pembayaran. Silakan coba lagi.']);
         }
-    }
-
-    public function orderFinished($id)
-    {
-        $transaction = ProductTransaction::with('transactionDetails.product')
-            ->findOrFail($id);
-
-        if (!$transaction->is_paid) {
-            $transaction->update([
-                'status' => 'paid',
-                'is_paid' => true,
-            ]);
-        }
-
-        return view('order.order_finished', compact('transaction'));
     }
 }

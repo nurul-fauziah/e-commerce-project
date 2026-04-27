@@ -29,17 +29,18 @@ class OrderService
         $this->promoCodeRepository = $promoCodeRepository;
     }
 
-public function beginCheckout()
+    public function beginCheckout()
     {
         $cart = session()->get('cart', []);
-        $selectedKeys = session()->get('selected_cart_keys', []); // Ambil item yang diceklis
+        $selectedKeys = session()->get('selected_cart_keys', []);
 
-        if (empty($cart) || empty($selectedKeys)) return false;
+        if (empty($cart) || empty($selectedKeys)) {
+            return false;
+        }
 
         $subTotalAmount = 0;
         $checkoutItems = [];
 
-        // HANYA hitung item yang ada di dalam selectedKeys
         foreach ($selectedKeys as $key) {
             if (isset($cart[$key])) {
                 $checkoutItems[$key] = $cart[$key];
@@ -47,14 +48,16 @@ public function beginCheckout()
             }
         }
 
-        if (empty($checkoutItems)) return false;
+        if (empty($checkoutItems)) {
+            return false;
+        }
 
-        $taxRate = 0.11; // PPN 11%
+        $taxRate = 0.11;
         $totalTax = $subTotalAmount * $taxRate;
         $grandTotalAmount = $subTotalAmount + $totalTax;
 
         $checkoutData = [
-            'cart_items' => $checkoutItems, // Hanya barang yang di-checkout
+            'cart_items' => $checkoutItems,
             'sub_total_amount' => $subTotalAmount,
             'total_tax' => $totalTax,
             'grand_total_amount' => $grandTotalAmount,
@@ -62,12 +65,14 @@ public function beginCheckout()
         ];
 
         $this->orderRepository->saveToSession($checkoutData);
+
         return true;
     }
 
     public function getOrderDetails()
     {
         $orderData = $this->orderRepository->getOrderFromSession();
+
         return compact('orderData');
     }
 
@@ -75,19 +80,22 @@ public function beginCheckout()
     {
         $this->orderRepository->updateSessionData($data);
     }
-public function finalizeOrder()
+
+    public function finalizeOrder()
     {
         $details = $this->getOrderDetails();
         $orderData = $details['orderData'];
         $productTransactionId = null;
 
-        if (empty($orderData['cart_items'])) return null;
+        if (empty($orderData['cart_items'])) {
+            return null;
+        }
 
         try {
             DB::transaction(function () use (&$productTransactionId, $orderData) {
-                // ... (Logika simpan ProductTransaction dan TransactionDetail SAMA PERSIS dengan sebelumnya)
                 $transaction = ProductTransaction::create([
                     'user_id'            => Auth::id(),
+                    'invoice_number'     => 'INV-' . now()->format('Ymd') . '-' . strtoupper(uniqid()),
                     'name'               => Auth::user()->name,
                     'email'              => Auth::user()->email,
                     'phone'              => $orderData['phone'] ?? '',
@@ -115,45 +123,48 @@ public function finalizeOrder()
 
                 $productTransactionId = $transaction->id;
 
-                // PERBAIKAN: Jangan hapus seluruh session('cart'). Hapus HANYA barang yang berhasil dibeli.
                 $fullCart = session()->get('cart', []);
                 $purchasedKeys = array_keys($orderData['cart_items']);
 
                 foreach ($purchasedKeys as $key) {
                     unset($fullCart[$key]);
                 }
+
                 session()->put('cart', $fullCart);
-                session()->forget('selected_cart_keys'); // Bersihkan memori pilihan checkout
+                session()->forget('selected_cart_keys');
             });
 
             return $productTransactionId;
         } catch (\Exception $e) {
             Log::error('Finalize Order Error: ' . $e->getMessage());
+
             return null;
         }
     }
 
-    public function getSnapToken($transactionId) {
-        $transaction = ProductTransaction::with('transactionDetails.product')->findOrFail($transactionId);
+    public function getSnapToken($transactionId)
+    {
+        $transaction = ProductTransaction::with('transactionDetails.product')
+            ->findOrFail($transactionId);
 
         Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = config('midtrans.is_production', false); // Fallback to false if not set
+        Config::$isProduction = config('midtrans.is_production', false);
         Config::$isSanitized = true;
         Config::$is3ds = true;
 
         $midtransItems = [];
+
         foreach ($transaction->transactionDetails as $detail) {
             $midtransItems[] = [
                 'id'       => $detail->st_product_id,
-                // PERBAIKAN: Harus bulat (integer)
                 'price'    => (int) round($detail->price),
                 'quantity' => $detail->quantity,
                 'name'     => substr($detail->product->name . ' (' . $detail->variant_details . ')', 0, 50),
             ];
         }
 
-        // Tambahkan PPN sebagai item
         $taxAmount = (int) round($transaction->sub_total_amount * 0.11);
+
         if ($taxAmount > 0) {
             $midtransItems[] = [
                 'id'       => 'TAX-PPN',
@@ -163,16 +174,19 @@ public function finalizeOrder()
             ];
         }
 
-        // Hitung ulang total gross_amount berdasarkan total item (Wajib di Midtrans)
         $calculatedGrossAmount = 0;
+
         foreach ($midtransItems as $item) {
-            $calculatedGrossAmount += ($item['price'] * $item['quantity']);
+            $calculatedGrossAmount += $item['price'] * $item['quantity'];
         }
+
+        // Penting: Midtrans order_id harus unik setiap create Snap Token.
+        // Invoice asli tetap disimpan di awal, lalu callback akan ambil invoice sebelum "-PAY-".
+        $midtransOrderId = $transaction->invoice_number . '-PAY-' . time();
 
         $params = [
             'transaction_details' => [
-                'order_id'     => $transaction->booking_trx_id,
-                // PERBAIKAN: Gunakan total yang dihitung ulang
+                'order_id'     => $midtransOrderId,
                 'gross_amount' => $calculatedGrossAmount,
             ],
             'customer_details' => [

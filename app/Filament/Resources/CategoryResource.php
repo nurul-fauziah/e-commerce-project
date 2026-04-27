@@ -18,29 +18,50 @@ class CategoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $navigationGroup = 'Shop Management';
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Categories';
+
+    protected static ?string $modelLabel = 'Category';
+    protected static ?string $pluralModelLabel = 'Categories';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Category Details')
+                    ->description('Kelola kategori produk yang tampil di halaman toko.')
+                    ->icon('heroicon-o-squares-2x2')
                     ->schema([
-                        Forms\Components\Grid::make(2)->schema([
-                            Forms\Components\TextInput::make('name')
-                                ->required()
-                                ->maxLength(255)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
-                            Forms\Components\TextInput::make('slug')
-                                ->required()
-                                ->disabled()
-                                ->dehydrated(),
-                        ]),
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Category Name')
+                                    ->placeholder('Contoh: Laptop, Smartphone, Accessories')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(
+                                        fn ($state, callable $set) => $set('slug', Str::slug($state))
+                                    ),
+
+                                Forms\Components\TextInput::make('slug')
+                                    ->label('Slug')
+                                    ->required()
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->unique(ignoreRecord: true),
+                            ]),
+
                         Forms\Components\FileUpload::make('icon')
+                            ->label('Category Icon')
                             ->image()
+                            ->imageEditor()
                             ->directory('categories')
+                            ->visibility('public')
                             ->required(),
                     ])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -48,21 +69,41 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('icon')->circular(), // Di Tabel BOLEH pake circular()
+                Tables\Columns\ImageColumn::make('icon')
+                    ->label('Icon')
+                    ->circular(),
+
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Category')
                     ->weight('bold')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->fontFamily('mono')
+                    ->color('gray')
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('products_count')
                     ->counts('products')
-                    ->label('Total Products')
+                    ->label('Products')
                     ->badge()
-                    ->color('info'),
+                    ->color('info')
+                    ->sortable(),
             ])
+            ->defaultSort('name')
+            ->emptyStateHeading('Belum ada kategori')
+            ->emptyStateDescription('Buat kategori agar produk lebih mudah dikelompokkan.')
+            ->emptyStateIcon('heroicon-o-squares-2x2')
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
                 ]),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 

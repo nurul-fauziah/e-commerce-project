@@ -20,6 +20,9 @@ class ProductResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
     protected static ?string $navigationGroup = 'Shop Management';
 
+    protected static ?int $navigationSort = 3; // atur urutan
+    protected static ?string $navigationLabel = 'Products'; // optional rename
+
     public static function form(Form $form): Form
     {
         return $form
@@ -155,11 +158,18 @@ class ProductResource extends Resource
                     ->weight('bold')
                     ->description(fn (Product $record): string => "Brand: {$record->brand->name}"),
                 Tables\Columns\TextColumn::make('category.name')->badge()->color('info'),
-                Tables\Columns\TextColumn::make('price')->money('IDR')->sortable()->color('success')->weight('bold'),
-                Tables\Columns\TextColumn::make('stock')
-                    ->numeric()
+
+                Tables\Columns\TextColumn::make('price')
+                    ->money('IDR')
                     ->sortable()
-                    ->color(fn ($state) => $state < 5 ? 'danger' : 'gray'),
+                    ->color('success')
+                    ->weight('bold'),
+
+                Tables\Columns\TextColumn::make('stock')
+                    ->badge()
+                    ->color(fn ($state) =>
+                        $state < 5 ? 'danger' : ($state < 10 ? 'warning' : 'success')
+                    ),
                 Tables\Columns\IconColumn::make('is_popular')->boolean()->label('Popular'),
             ])
             ->filters([

@@ -6,46 +6,61 @@
 <main class="st-page-wrap">
 
     @php
-        $isPaid = $productTransaction->is_paid;
+        $status = $productTransaction->status ?? 'pending';
+        $isPaid = $status === 'paid';
+        $isFailed = $status === 'failed';
         $itemsCount = $productTransaction->transactionDetails->count();
+
+        $statusClass = [
+            'paid' => 'bg-emerald-50 text-emerald-800 ring-emerald-100',
+            'pending' => 'bg-amber-50 text-amber-800 ring-amber-100',
+            'failed' => 'bg-red-50 text-red-800 ring-red-100',
+        ][$status] ?? 'bg-slate-50 text-slate-800 ring-slate-100';
     @endphp
 
     <a href="{{ route('order.my_orders') }}" class="st-btn-ghost mb-6">
         ← Kembali ke Pesanan
     </a>
 
-    <!-- HERO -->
     <section class="st-hero p-6 md:p-10 mb-6">
         <span class="st-eyebrow st-eyebrow-blue">
             Detail Pesanan
         </span>
 
         <h1 class="st-hero-title text-3xl md:text-5xl mt-4 break-all">
-            #{{ $productTransaction->booking_trx_id }}
+            #{{ $productTransaction->invoice_number }}
         </h1>
 
         <p class="st-hero-text mt-4 max-w-2xl">
+            Transaction ID: #{{ $productTransaction->booking_trx_id }} <br>
             Dibuat pada {{ $productTransaction->created_at->format('d M Y, H:i') }} • {{ $itemsCount }} item dalam pesanan ini.
         </p>
     </section>
 
-    <!-- STATUS BAR -->
     <section class="grid gap-3 md:grid-cols-3 mb-6">
         <div class="st-card-soft p-5">
             <div class="st-icon-blue mb-3">#</div>
-            <h3 class="st-subtitle">Order ID Aman</h3>
+            <h3 class="st-subtitle">Invoice Aman</h3>
             <p class="st-muted text-sm mt-1">
-                Simpan nomor pesanan untuk konfirmasi.
+                Simpan nomor invoice untuk konfirmasi.
             </p>
         </div>
 
         <div class="st-card-soft p-5">
-            <div class="{{ $isPaid ? 'st-icon-green' : 'st-icon-orange' }} mb-3">
-                {{ $isPaid ? '✓' : '!' }}
+            <div class="{{ $isPaid ? 'st-icon-green' : ($isFailed ? 'st-icon-red' : 'st-icon-orange') }} mb-3">
+                {{ $isPaid ? '✓' : ($isFailed ? '×' : '!') }}
             </div>
+
             <h3 class="st-subtitle">Status Pembayaran</h3>
+
             <p class="st-muted text-sm mt-1">
-                {{ $isPaid ? 'Sudah dibayar dan siap diproses.' : 'Masih menunggu pembayaran/verifikasi.' }}
+                @if($isPaid)
+                    Sudah dibayar dan siap diproses.
+                @elseif($isFailed)
+                    Pembayaran gagal atau kedaluwarsa.
+                @else
+                    Masih menunggu pembayaran/verifikasi Midtrans.
+                @endif
             </p>
         </div>
 
@@ -60,10 +75,8 @@
 
     <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
 
-        <!-- LEFT -->
         <div class="space-y-6">
 
-            <!-- PRODUCTS -->
             <article class="st-card overflow-hidden">
                 <div class="border-b border-slate-100 p-5 md:p-6">
                     <h2 class="st-title text-2xl">
@@ -123,7 +136,6 @@
                 </div>
             </article>
 
-            <!-- SHIPPING -->
             <article class="st-card p-5 md:p-6">
                 <div class="mb-5 flex items-start justify-between gap-4">
                     <div>
@@ -142,36 +154,24 @@
 
                 <div class="grid gap-3 sm:grid-cols-2">
                     <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
-                            Penerima
-                        </p>
-                        <p class="mt-1 font-black text-slate-950">
-                            {{ $productTransaction->name }}
-                        </p>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Penerima</p>
+                        <p class="mt-1 font-black text-slate-950">{{ $productTransaction->name }}</p>
                     </div>
 
                     <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
-                            Kontak
-                        </p>
-                        <p class="mt-1 font-black text-slate-950">
-                            {{ $productTransaction->phone }}
-                        </p>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Kontak</p>
+                        <p class="mt-1 font-black text-slate-950">{{ $productTransaction->phone }}</p>
                     </div>
 
                     <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
-                            Kota / Kode Pos
-                        </p>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Kota / Kode Pos</p>
                         <p class="mt-1 font-black text-slate-950">
                             {{ $productTransaction->city }} • {{ $productTransaction->post_code }}
                         </p>
                     </div>
 
                     <div class="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-100 sm:col-span-2">
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">
-                            Alamat Lengkap
-                        </p>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Alamat Lengkap</p>
                         <p class="mt-1 leading-6 text-slate-700">
                             {{ $productTransaction->address }}
                         </p>
@@ -181,7 +181,6 @@
 
         </div>
 
-        <!-- RIGHT SUMMARY -->
         <aside class="lg:sticky lg:top-28 h-fit">
             <div class="st-card p-6">
                 <span class="st-eyebrow">
@@ -209,9 +208,7 @@
 
                     <div class="border-t border-dashed border-slate-200 pt-4">
                         <div class="flex items-end justify-between gap-4">
-                            <span class="font-black text-slate-950">
-                                Grand Total
-                            </span>
+                            <span class="font-black text-slate-950">Grand Total</span>
                             <span class="text-2xl font-black text-slate-950">
                                 Rp {{ number_format($productTransaction->grand_total_amount, 0, ',', '.') }}
                             </span>
@@ -219,20 +216,36 @@
                     </div>
                 </div>
 
-                <div class="mt-6 rounded-2xl {{ $isPaid ? 'bg-emerald-50 text-emerald-800 ring-emerald-100' : 'bg-amber-50 text-amber-800 ring-amber-100' }} p-4 text-sm ring-1">
+                <div class="mt-6 rounded-2xl {{ $statusClass }} p-4 text-sm ring-1">
                     <strong class="block">
-                        {{ $isPaid ? 'Pembayaran Berhasil' : 'Menunggu Pembayaran' }}
+                        Status: {{ strtoupper($status) }}
                     </strong>
 
                     <span>
-                        {{ $isPaid ? 'Pesanan akan diproses sesuai antrean toko.' : 'Kalau sudah transfer, tunggu admin melakukan verifikasi.' }}
+                        @if($isPaid)
+                            Pembayaran berhasil. Pesanan akan diproses sesuai antrean toko.
+                        @elseif($isFailed)
+                            Pembayaran gagal/dibatalkan. Silakan checkout ulang jika masih ingin membeli.
+                        @else
+                            Pembayaran masih diproses oleh Midtrans. Status akan berubah otomatis.
+                        @endif
                     </span>
                 </div>
 
                 <div class="mt-5 grid gap-3">
-                    @if(!$isPaid)
-                        <a href="{{ route('front.contact') }}" class="st-btn-accent w-full">
-                            Konfirmasi ke Admin
+                    <a href="{{ route('order.invoice', $productTransaction->id) }}" class="st-btn-primary w-full">
+                        Download Invoice
+                    </a>
+
+                    @if($status === 'pending')
+                        <a href="{{ route('order.order_finished', $productTransaction->id) }}" class="st-btn-accent w-full">
+                            Cek Status Pembayaran
+                        </a>
+                    @endif
+
+                    @if($status === 'failed')
+                        <a href="{{ route('front.catalog') }}" class="st-btn-accent w-full">
+                            Checkout Ulang
                         </a>
                     @endif
 

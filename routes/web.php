@@ -27,11 +27,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/booking', [OrderController::class, 'booking'])->name('front.booking');
     Route::get('/checkout/customer-data', [OrderController::class, 'customerData'])->name('order.customer_data');
     Route::post('/checkout/customer-data/save', [OrderController::class, 'saveCustomerData'])->name('order.save_customer_data');
+
     Route::get('/checkout/payment', [OrderController::class, 'payment'])->name('order.payment');
+    Route::get('/checkout/payment/retry/{productTransaction}', [OrderController::class, 'retryPayment'])->name('order.payment.retry');
+
     Route::get('/checkout/finished/{id}', [OrderController::class, 'orderFinished'])->name('order.order_finished');
 
     Route::get('/my-orders', [MyOrderController::class, 'index'])->name('order.my_orders');
     Route::get('/my-orders/details/{productTransaction}', [MyOrderController::class, 'show'])->name('order.my_order_details');
+    Route::get('/my-orders/invoice/{productTransaction}', [MyOrderController::class, 'invoice'])->name('order.invoice');
 });
 
 // --- AUTH ROUTES ---
@@ -52,7 +56,3 @@ Route::get('/protocol/privacy-policy', [PageController::class, 'privacy'])->name
 Route::get('/protocol/terms-of-service', [PageController::class, 'terms'])->name('front.terms');
 Route::get('/support/contact', [PageController::class, 'contact'])->name('front.contact');
 
-
-
-Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
-    ->name('midtrans.callback');
