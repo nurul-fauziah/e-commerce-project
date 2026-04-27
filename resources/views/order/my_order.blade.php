@@ -5,11 +5,8 @@
 @section('content')
 <main class="st-page-wrap">
 
-    <!-- HERO -->
     <section class="st-hero p-6 md:p-10 mb-6">
-        <span class="st-eyebrow st-eyebrow-blue">
-            Order Center
-        </span>
+        <span class="st-eyebrow st-eyebrow-blue">Order Center</span>
 
         <h1 class="st-hero-title text-3xl md:text-5xl mt-4">
             Pesanan Saya
@@ -20,46 +17,23 @@
         </p>
     </section>
 
-    <!-- INFO BAR -->
-    <section class="grid gap-3 md:grid-cols-3 mb-6">
-        <div class="st-card-soft p-5">
-            <div class="st-icon-blue mb-3">✓</div>
-            <h3 class="st-subtitle">Status Jelas</h3>
-            <p class="st-muted text-sm mt-1">
-                Cek pembayaran dan verifikasi pesanan.
-            </p>
-        </div>
-
-        <div class="st-card-soft p-5">
-            <div class="st-icon-green mb-3">✓</div>
-            <h3 class="st-subtitle">Produk Original</h3>
-            <p class="st-muted text-sm mt-1">
-                Pesanan diproses sesuai stok toko.
-            </p>
-        </div>
-
-        <div class="st-card-soft p-5">
-            <div class="st-icon-orange mb-3">?</div>
-            <h3 class="st-subtitle">Butuh Bantuan?</h3>
-            <p class="st-muted text-sm mt-1">
-                Simpan nomor order untuk konfirmasi.
-            </p>
-        </div>
-    </section>
-
-    <!-- ORDER LIST -->
     <section class="grid gap-5">
         @forelse($orders as $order)
             @php
                 $firstItem = $order->transactionDetails->first();
                 $additionalItemsCount = $order->transactionDetails->count() - 1;
-                $isPaid = $order->is_paid;
+                $status = $order->status ?? 'pending';
+
+                $statusClass = [
+                    'paid' => 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+                    'pending' => 'bg-amber-50 text-amber-700 ring-amber-100',
+                    'failed' => 'bg-red-50 text-red-700 ring-red-100',
+                ][$status] ?? 'bg-slate-50 text-slate-700 ring-slate-100';
             @endphp
 
             <article class="st-card p-5 md:p-6 transition hover:-translate-y-0.5 hover:shadow-xl">
                 <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
-                    <!-- Product Summary -->
                     <div class="flex min-w-0 flex-1 items-center gap-5">
                         <div class="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 md:h-28 md:w-28">
                             @if($firstItem && $firstItem->product)
@@ -75,13 +49,15 @@
 
                         <div class="min-w-0">
                             <div class="mb-2 flex flex-wrap items-center gap-2">
+
                                 <span class="rounded-full bg-slate-950 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
-                                    #{{ $order->booking_trx_id }}
+                                    #{{ $order->invoice_number }}
                                 </span>
 
-                                <span class="rounded-full {{ $isPaid ? 'bg-emerald-50 text-emerald-700 ring-emerald-100' : 'bg-amber-50 text-amber-700 ring-amber-100' }} px-3 py-1 text-[11px] font-bold uppercase tracking-wide ring-1">
-                                    {{ $isPaid ? 'Paid / Verified' : 'Pending Payment' }}
+                                <span class="rounded-full {{ $statusClass }} px-3 py-1 text-[11px] font-bold uppercase tracking-wide ring-1">
+                                    {{ strtoupper($status) }}
                                 </span>
+
                             </div>
 
                             <h2 class="truncate text-xl font-black tracking-tight text-slate-950 md:text-2xl">
@@ -99,10 +75,13 @@
                                     </span>
                                 @endif
                             </div>
+
+                            <p class="mt-2 text-xs text-slate-400">
+                                Transaction ID: #{{ $order->booking_trx_id }}
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Price & Action -->
                     <div class="flex flex-col gap-4 border-t border-dashed border-slate-200 pt-5 md:min-w-[260px] md:items-end md:border-t-0 md:pt-0">
 
                         <div class="w-full rounded-2xl bg-slate-50 p-4 text-left ring-1 ring-slate-100 md:text-right">
@@ -120,10 +99,17 @@
                                 Lihat Detail
                             </a>
 
-                            @if(!$isPaid)
-                                <a href="{{ route('front.contact') }}"
+                            @if($status === 'pending')
+                                <a href="{{ route('order.order_finished', $order->id) }}"
                                    class="st-btn-ghost w-full">
-                                    Butuh Bantuan?
+                                    Cek Status
+                                </a>
+                            @endif
+
+                            @if($status === 'failed')
+                                <a href="{{ route('front.catalog') }}"
+                                   class="st-btn-ghost w-full">
+                                    Belanja Lagi
                                 </a>
                             @endif
                         </div>
@@ -142,7 +128,7 @@
                 </h2>
 
                 <p class="st-muted mx-auto mt-3 max-w-md text-sm leading-6">
-                    Pesanan kamu nanti muncul di sini setelah checkout. Yuk lihat produk SmartTech yang ready stock.
+                    Pesanan kamu nanti muncul di sini setelah checkout.
                 </p>
 
                 <a href="{{ route('front.catalog') }}" class="st-btn-accent mt-6">
