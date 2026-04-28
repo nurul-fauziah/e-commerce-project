@@ -126,7 +126,3 @@ php artisan migrate
 php artisan serve
 npm run dev
 ```
-
-### 🎓 Background
-
-This project was developed as part of an E-Commerce course, with the objective of building a fully functional online store that simulates real-world business processes, from product browsing to payment and order management.
