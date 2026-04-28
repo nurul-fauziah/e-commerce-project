@@ -7,14 +7,21 @@ This project was developed as part of an academic E-Commerce course, with a focu
 
 ## 📸 Preview
 
-> ⚠️ Add screenshots here to make your portfolio stand out
-
-Recommended screenshots:
 - Homepage (landing page)
+  <img width="1236" height="954" alt="image" src="https://github.com/user-attachments/assets/8f16d098-fd2d-45d3-b190-889b9975a97e" />
+
 - Product detail page
+  <img width="943" height="866" alt="image" src="https://github.com/user-attachments/assets/51097576-55d0-4a19-aeda-368331ea2e4e" />
+
 - Cart & Checkout page
+  <img width="1392" height="921" alt="image" src="https://github.com/user-attachments/assets/4768f7d2-5444-4ef2-86ff-c0855fdb8fb4" />
+
 - Payment (Midtrans)
+  <img width="1416" height="949" alt="image" src="https://github.com/user-attachments/assets/01e332a5-addf-451d-9248-c4251ce7ae2c" />
+
 - Admin dashboard
+  <img width="1920" height="840" alt="image" src="https://github.com/user-attachments/assets/ed3bbaf8-8e90-434f-b472-515f61f7608c" />
+
 
 ![Homepage](docs/assets/homepage.png)
 ![Product](docs/assets/product.png)
