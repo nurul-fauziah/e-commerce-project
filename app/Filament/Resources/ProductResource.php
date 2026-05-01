@@ -205,7 +205,7 @@ class ProductResource extends Resource
                 Tables\Columns\ImageColumn::make('thumbnail')
                     ->label('Image')
                     ->disk('public')
-                    ->rounded()
+                    ->circular()
                     ->size(55),
 
                 Tables\Columns\TextColumn::make('name')

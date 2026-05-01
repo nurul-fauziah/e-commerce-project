@@ -19,7 +19,7 @@ class Product extends Model
         'name',
         'slug',
         'thumbnail',
-        'about',
+        'description',
         'price',
         'stock',
         'is_popular',

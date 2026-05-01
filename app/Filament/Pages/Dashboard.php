@@ -18,7 +18,7 @@ class Dashboard extends BaseDashboard
 
     public function getSubheading(): ?string
     {
-        return 'Pantau revenue, order, dan transaksi terbaru SmartTech Shop.';
+        return 'Overview performa revenue, transaksi, dan order terbaru SmartTech Shop.';
     }
 
     public function getWidgets(): array
@@ -35,7 +35,7 @@ class Dashboard extends BaseDashboard
         return [
             'default' => 1,
             'md' => 2,
-            'xl' => 2,
+            'xl' => 3,
         ];
     }
 }
