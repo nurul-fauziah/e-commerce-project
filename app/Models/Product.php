@@ -30,18 +30,22 @@ class Product extends Model
 
     protected $casts = [
         'specifications' => 'array',
+        'is_popular' => 'boolean',
     ];
 
-    public function setNameAttribute($value){
+    public function setNameAttribute($value): void
+    {
         $this->attributes['name'] = $value;
         $this->attributes['slug'] = Str::slug($value);
     }
 
-    public function brand(): BelongsTo{
+    public function brand(): BelongsTo
+    {
         return $this->belongsTo(Brand::class, 'st_brand_id');
     }
 
-    public function category(): BelongsTo{
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class, 'st_category_id');
     }
 
@@ -54,6 +58,4 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class, 'st_product_id');
     }
-
-
 }
