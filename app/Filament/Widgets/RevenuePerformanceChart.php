@@ -6,9 +6,9 @@ use App\Models\ProductTransaction;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
-class RevenueChart extends ChartWidget
+class RevenuePerformanceChart extends ChartWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
 
     protected static ?string $heading = 'Revenue Performance';
 
@@ -18,7 +18,7 @@ class RevenueChart extends ChartWidget
 
     protected int|string|array $columnSpan = [
         'default' => 'full',
-        'xl' => 2,
+        'xl' => 3,
     ];
 
     public ?string $filter = 'month';
@@ -38,8 +38,8 @@ class RevenueChart extends ChartWidget
         $successfulStatuses = ['paid', 'shipped', 'completed'];
 
         $dates = match ($this->filter) {
-            '7_days' => collect(range(6, 0))->map(fn ($day) => now()->copy()->subDays($day)),
-            '30_days' => collect(range(29, 0))->map(fn ($day) => now()->copy()->subDays($day)),
+            '7_days' => collect(range(6, 0))->map(fn ($day) => now()->subDays($day)),
+            '30_days' => collect(range(29, 0))->map(fn ($day) => now()->subDays($day)),
             'year' => collect(range(1, 12))->map(fn ($month) => Carbon::create(now()->year, $month, 1)),
             default => collect(range(1, now()->daysInMonth))
                 ->map(fn ($day) => Carbon::create(now()->year, now()->month, $day)),

@@ -6,7 +6,7 @@ use App\Models\ProductTransaction;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class TransactionStats extends BaseWidget
+class ExecutiveStats extends BaseWidget
 {
     protected static ?int $sort = 1;
 
@@ -18,16 +18,16 @@ class TransactionStats extends BaseWidget
     {
         $successfulStatuses = ['paid', 'shipped', 'completed'];
 
-        $thisMonthStart = now()->copy()->startOfMonth();
-        $thisMonthEnd = now()->copy()->endOfMonth();
+        $thisMonthStart = now()->startOfMonth();
+        $thisMonthEnd = now()->endOfMonth();
 
-        $lastMonthStart = now()->copy()->subMonthNoOverflow()->startOfMonth();
-        $lastMonthEnd = now()->copy()->subMonthNoOverflow()->endOfMonth();
+        $lastMonthStart = now()->subMonthNoOverflow()->startOfMonth();
+        $lastMonthEnd = now()->subMonthNoOverflow()->endOfMonth();
 
         $totalRevenue = ProductTransaction::whereIn('status', $successfulStatuses)
             ->sum('grand_total_amount');
 
-        $monthlyRevenue = ProductTransaction::whereIn('status', $successfulStatuses)
+        $thisMonthRevenue = ProductTransaction::whereIn('status', $successfulStatuses)
             ->whereBetween('created_at', [$thisMonthStart, $thisMonthEnd])
             ->sum('grand_total_amount');
 
@@ -35,19 +35,15 @@ class TransactionStats extends BaseWidget
             ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
             ->sum('grand_total_amount');
 
-        $growth = $lastMonthRevenue > 0
-            ? round((($monthlyRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
-            : ($monthlyRevenue > 0 ? 100 : 0);
+        $revenueGrowth = $lastMonthRevenue > 0
+            ? round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100)
+            : ($thisMonthRevenue > 0 ? 100 : 0);
 
         $totalOrders = ProductTransaction::count();
 
         $successfulOrders = ProductTransaction::whereIn('status', $successfulStatuses)->count();
 
         $pendingOrders = ProductTransaction::where('status', 'pending')->count();
-
-        $paidOrders = ProductTransaction::where('status', 'paid')->count();
-
-        $completedOrders = ProductTransaction::where('status', 'completed')->count();
 
         $cancelledOrders = ProductTransaction::where('status', 'cancelled')->count();
 
@@ -59,67 +55,65 @@ class TransactionStats extends BaseWidget
             ? round($totalRevenue / $successfulOrders)
             : 0;
 
-        $revenueChart = collect(range(6, 0))
+        $last7DaysRevenue = collect(range(6, 0))
             ->map(function ($day) use ($successfulStatuses) {
                 return ProductTransaction::whereIn('status', $successfulStatuses)
-                    ->whereDate('created_at', now()->copy()->subDays($day)->toDateString())
+                    ->whereDate('created_at', now()->subDays($day)->toDateString())
                     ->sum('grand_total_amount');
             })
             ->toArray();
 
-        $orderChart = collect(range(6, 0))
+        $last7DaysOrders = collect(range(6, 0))
             ->map(function ($day) {
-                return ProductTransaction::whereDate('created_at', now()->copy()->subDays($day)->toDateString())
+                return ProductTransaction::whereDate('created_at', now()->subDays($day)->toDateString())
                     ->count();
             })
             ->toArray();
 
         return [
             Stat::make('Total Revenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
-                ->description('Akumulasi transaksi berhasil')
+                ->description('All-time confirmed revenue')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
-                ->chart($revenueChart),
+                ->chart($last7DaysRevenue),
 
-            Stat::make('Monthly Revenue', 'Rp ' . number_format($monthlyRevenue, 0, ',', '.'))
-                ->description($growth >= 0 ? '+' . $growth . '% vs bulan lalu' : $growth . '% vs bulan lalu')
-                ->descriptionIcon($growth >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
-                ->color($growth >= 0 ? 'success' : 'danger')
-                ->chart($revenueChart),
+            Stat::make('Monthly Revenue', 'Rp ' . number_format($thisMonthRevenue, 0, ',', '.'))
+                ->description(
+                    $revenueGrowth >= 0
+                        ? '+' . $revenueGrowth . '% vs last month'
+                        : $revenueGrowth . '% vs last month'
+                )
+                ->descriptionIcon(
+                    $revenueGrowth >= 0
+                        ? 'heroicon-m-arrow-trending-up'
+                        : 'heroicon-m-arrow-trending-down'
+                )
+                ->color($revenueGrowth >= 0 ? 'success' : 'danger')
+                ->chart($last7DaysRevenue),
 
             Stat::make('Total Orders', number_format($totalOrders, 0, ',', '.'))
-                ->description($successfulOrders . ' transaksi berhasil')
+                ->description($successfulOrders . ' successful orders')
                 ->descriptionIcon('heroicon-m-shopping-bag')
                 ->color('info')
-                ->chart($orderChart),
+                ->chart($last7DaysOrders),
 
             Stat::make('Average Order Value', 'Rp ' . number_format($averageOrderValue, 0, ',', '.'))
-                ->description('Rata-rata nilai transaksi')
+                ->description('Average value per successful order')
                 ->descriptionIcon('heroicon-m-calculator')
                 ->color('gray'),
 
             Stat::make('Success Rate', $successRate . '%')
-                ->description('Rasio transaksi berhasil')
+                ->description('Successful orders ratio')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color($successRate >= 70 ? 'success' : ($successRate >= 40 ? 'warning' : 'danger')),
 
             Stat::make('Pending Orders', number_format($pendingOrders, 0, ',', '.'))
-                ->description('Menunggu pembayaran')
+                ->description('Need payment confirmation')
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning'),
 
-            Stat::make('Paid Orders', number_format($paidOrders, 0, ',', '.'))
-                ->description('Pembayaran terverifikasi')
-                ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success'),
-
-            Stat::make('Completed Orders', number_format($completedOrders, 0, ',', '.'))
-                ->description('Pesanan selesai')
-                ->descriptionIcon('heroicon-m-check-badge')
-                ->color('success'),
-
             Stat::make('Cancelled Orders', number_format($cancelledOrders, 0, ',', '.'))
-                ->description('Transaksi dibatalkan')
+                ->description('Failed or cancelled transactions')
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
         ];
