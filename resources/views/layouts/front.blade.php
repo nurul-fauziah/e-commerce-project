@@ -237,6 +237,11 @@
             color: #059669;
         }
 
+        .st-icon-red {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
         .st-card-dark .st-icon-blue {
             background: rgba(37,99,235,.15);
             color: #93c5fd;
@@ -250,6 +255,11 @@
         .st-card-dark .st-icon-green {
             background: rgba(16,185,129,.15);
             color: #6ee7b7;
+        }
+
+        .st-card-dark .st-icon-red {
+            background: rgba(239,68,68,.15);
+            color: #fca5a5;
         }
 
         .st-btn-primary,
@@ -313,14 +323,36 @@
         }
 
         .st-list li::before {
-            content: '✓';
-            color: #059669;
-            font-weight: 900;
+            content: '';
+            width: 1rem;
+            height: 1rem;
+            min-width: 1rem;
+            border-radius: 50%;
+            background: #ecfdf5;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: 2px;
+        }
+
+        .st-list li::after {
+            content: '';
+            width: 5px;
+            height: 8px;
+            border-right: 2px solid #059669;
+            border-bottom: 2px solid #059669;
+            transform: rotate(45deg);
+            position: absolute;
+            margin-top: -1px;
         }
 
         .st-list-danger li::before {
-            content: '×';
-            color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .st-list-danger li::after {
+            border-color: #dc2626;
         }
 
         .st-product-card {
@@ -585,7 +617,7 @@
 
                             <a href="{{ route('order.my_orders') }}"
                                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition st-focus-ring">
-                                <span aria-hidden="true">📦</span>
+                                <span aria-hidden="true"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg></span>
                                 My Orders
                             </a>
 

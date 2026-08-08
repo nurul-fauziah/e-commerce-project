@@ -48,7 +48,13 @@
 
         <div class="st-card-soft p-5">
             <div class="{{ $isPaid ? 'st-icon-green' : ($isFailed ? 'st-icon-red' : 'st-icon-orange') }} mb-3">
-                {{ $isPaid ? '✓' : ($isFailed ? '×' : '!') }}
+                @if($isPaid)
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                @elseif($isFailed)
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                @else
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+                @endif
             </div>
 
             <h3 class="st-subtitle">Status Pembayaran</h3>
@@ -65,7 +71,7 @@
         </div>
 
         <div class="st-card-soft p-5">
-            <div class="st-icon-orange mb-3">?</div>
+            <div class="st-icon-orange mb-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg></div>
             <h3 class="st-subtitle">Bantuan Customer</h3>
             <p class="st-muted text-sm mt-1">
                 Hubungi admin kalau ada kendala pesanan.
@@ -96,8 +102,8 @@
                                          class="h-full w-full object-cover"
                                          alt="{{ $detail->product->name }}">
                                 @else
-                                    <div class="flex h-full w-full items-center justify-center text-3xl text-slate-300">
-                                        📦
+                                    <div class="flex h-full w-full items-center justify-center text-slate-300">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
                                     </div>
                                 @endif
                             </div>
@@ -148,7 +154,7 @@
                     </div>
 
                     <div class="st-icon-blue">
-                        🚚
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H19.5M3.75 14.25V4.875c0-.621.504-1.125 1.125-1.125h8.25c.621 0 1.125.504 1.125 1.125v3.026M3.75 14.25h4.5m-4.5 0H2.25m1.5 0v3.375c0 .621.504 1.125 1.125 1.125H19.5m-13.5 0h13.5m-13.5 0V13.5c0-.621.504-1.125 1.125-1.125h4.5m-5.625 0h5.625c.621 0 1.125.504 1.125 1.125v3.375"/></svg>
                     </div>
                 </div>
 
