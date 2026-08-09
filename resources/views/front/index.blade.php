@@ -114,25 +114,25 @@
         <section class="mb-16 md:mb-24">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-blue mb-4">✓</div>
+                    <div class="st-icon-blue mb-4"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></div>
                     <h3 class="font-black text-slate-950">Produk Original</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-500">Gadget pilihan dengan informasi produk yang jelas dan mudah dicek.</p>
                 </div>
 
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-green mb-4">🛡</div>
+                    <div class="st-icon-green mb-4"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div>
                     <h3 class="font-black text-slate-950">Garansi & Support</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-500">Bantuan setelah pembelian untuk pengecekan produk dan klaim garansi.</p>
                 </div>
 
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-orange mb-4">💳</div>
+                    <div class="st-icon-orange mb-4"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg></div>
                     <h3 class="font-black text-slate-950">Checkout Aman</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-500">Alur pembelian dibuat simpel, jelas, dan nyaman untuk customer.</p>
                 </div>
 
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-blue mb-4">📦</div>
+                    <div class="st-icon-blue mb-4"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg></div>
                     <h3 class="font-black text-slate-950">Stok Terlihat</h3>
                     <p class="mt-2 text-sm leading-6 text-slate-500">Customer bisa cek ketersediaan gadget sebelum lanjut checkout.</p>
                 </div>
@@ -217,8 +217,8 @@
                     <x-product-card :product="$product" />
                 @empty
                     <div class="col-span-full st-card p-10 text-center">
-                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
-                            📦
+                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
                         </div>
 
                         <p class="text-xl font-black uppercase tracking-tight text-slate-500">

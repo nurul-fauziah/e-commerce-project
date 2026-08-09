@@ -8,7 +8,7 @@
     <!-- HERO -->
     <section class="st-hero p-6 md:p-10 mb-6 text-center">
         <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
-            ✓
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
         </div>
 
         <span class="st-eyebrow st-eyebrow-blue">
@@ -20,7 +20,7 @@
         </h1>
 
         <p class="st-hero-text mx-auto mt-4 max-w-2xl text-sm md:text-base">
-            Terima kasih! Pesanan kamu sedang diproses 🚀
+            Terima kasih! Pesanan kamu sedang diproses.
         </p>
     </section>
 

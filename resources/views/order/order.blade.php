@@ -115,8 +115,8 @@
                 </a>
 
                 <div class="mt-5 text-xs text-slate-500 space-y-1">
-                    <p>✔ Pesanan akan diproses setelah pembayaran</p>
-                    <p>✔ Simpan bukti transaksi</p>
+                    <p class="flex items-center gap-2"><svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> Pesanan akan diproses setelah pembayaran</p>
+                    <p class="flex items-center gap-2"><svg class="w-3.5 h-3.5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> Simpan bukti transaksi</p>
                 </div>
 
             </div>

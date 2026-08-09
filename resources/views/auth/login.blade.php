@@ -22,19 +22,19 @@
 
             <div class="mt-8 grid gap-3 sm:grid-cols-3">
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-blue mb-3">✓</div>
+                    <div class="st-icon-blue mb-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg></div>
                     <h3 class="st-subtitle text-sm">Original</h3>
                     <p class="st-muted text-xs mt-1">Produk resmi & jelas.</p>
                 </div>
 
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-green mb-3">🔒</div>
+                    <div class="st-icon-green mb-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg></div>
                     <h3 class="st-subtitle text-sm">Secure</h3>
                     <p class="st-muted text-xs mt-1">Checkout lebih aman.</p>
                 </div>
 
                 <div class="st-card-soft p-5">
-                    <div class="st-icon-orange mb-3">⚡</div>
+                    <div class="st-icon-orange mb-3"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div>
                     <h3 class="st-subtitle text-sm">Fast</h3>
                     <p class="st-muted text-xs mt-1">Belanja lebih cepat.</p>
                 </div>

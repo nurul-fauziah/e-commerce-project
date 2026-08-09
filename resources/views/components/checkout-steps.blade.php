@@ -45,7 +45,7 @@
 
         <div class="st-step {{ $isDone ? 'st-step-done' : '' }} {{ $isActive ? 'st-step-active' : '' }}">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl {{ $isDone ? 'bg-emerald-600 text-white' : ($isActive ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500') }} font-black">
-                {{ $isDone ? '✓' : $step['number'] }}
+                {!! $isDone ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>' : $step['number'] !!}
             </span>
 
             <div class="min-w-0">
